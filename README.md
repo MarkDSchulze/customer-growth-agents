@@ -1,4 +1,4 @@
-# Customer Growth Agents
+# Growth OS
 
 A vendor-neutral, governed multi-agent system spanning **Marketing, Advertising, Sales, Commerce and Service**, with an AWS deployment foundation and pluggable Salesforce, Adobe Experience Platform and Shopify connectors.
 
