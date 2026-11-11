@@ -1,0 +1,13 @@
+groups:
+  - name: growth-reference
+    rules:
+      - alert: GrowthApiUnavailable
+        expr: up{job="growth-api"} == 0
+        for: 2m
+        labels: {severity: critical}
+        annotations: {summary: 'Growth API scrape unavailable; verify auth and service health'}
+      - alert: GrowthApiErrors
+        expr: sum(rate(growth_http_requests_total{status=~"5.."}[5m])) > 0.05
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: 'Sustained Growth API errors; inspect correlation audit and DLQ'}

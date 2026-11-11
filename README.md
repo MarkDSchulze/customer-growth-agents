@@ -1,108 +1,81 @@
-# Enterprise Customer Growth AI Agent System
+# Customer Growth Agents
 
-> **Status: Architecture and build-specification starter repository (documentation only).** No runnable application, production integrations, or automated tests have been implemented yet.
+A runnable, vendor-neutral customer growth orchestration reference implementation with five bounded domain agents: **Marketing, Advertising, Sales, Commerce and Service**.
 
-A vendor-neutral enterprise AI orchestration system for customer acquisition, sales conversion, digital commerce, marketing and advertising optimization, service-led retention, loyalty and revenue expansion. It sits **above** incumbent Sales CRM, Service CRM, MarTech, AdTech, E-Commerce, CDP, ERP/OMS, CMS and analytics systems, coordinating governed growth decisions without replacing those systems of record.
+The first working journey is **service-aware cart recovery**. An authenticated cart signal enters a durable workflow, domain planners propose structured actions, deterministic policies decide eligibility, and a gateway activates one approved **mock** marketing journey or records suppression/holdout. The operator console shows decisions, correlated audit, experiment cohorts, replay and emergency controls.
 
-## What the platform will do
-1. Ingest enterprise customer signals (e.g. a cart-abandoned event or critical service case).
-2. Resolve consent- and purpose-scoped customer context across enterprise systems.
-3. Identify and rank eligible growth opportunities through deterministic policies and next-best-action decisioning.
-4. Delegate bounded planning to domain AI agents (Marketing, Sales, Commerce, Service).
-5. Execute approved actions through scoped vendor tool adapters and durable workflows, with idempotency, human review and audit logging.
-6. Measure incremental outcomes using treatment/control experiments and authoritative conversion events.
+**Current release: synthetic MVP, not an enterprise-certified production deployment.** Sales and Advertising expose recommendation boundaries; their vendor mutations, live messaging, media spend, pricing and discounts are not implemented. No paid AI keys or customer data are needed. Enterprise scale and release gates are tracked in [delivery/NFR-and-tests.md](delivery/NFR-and-tests.md).
 
-**First MVP:** Service-aware cart recovery across mock commerce, customer identity/consent, Service CRM and marketing automation systems. Outbound sends require explicit consent and approved journey configuration; no uncontrolled budget/discount/pricing changes.
+![Synthetic operator console](docs/console.png)
 
-## Start here
-| Document | Purpose |
-|---|---|
-| [PRD.md](PRD.md) | Product personas, problems, journeys, functional requirements, scope, acceptance criteria |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | L2/L3 architecture, reference stack, system components, APIs, orchestration, security |
-| [DATA_MODEL.md](DATA_MODEL.md) | Canonical identity and business entities, event/data contracts, schema and lineage |
-| [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) | Delivery phases, dependency graph, verification, MVP definition of done |
-| [AGENTS.md](AGENTS.md) | Codex/AI coding-agent and engineering repo instructions |
+## Run the complete local stack
 
-### Additional existing technical specifications
+Requires Python 3.12+, [uv](https://docs.astral.sh/uv/), Node.js 24, Docker Engine and Compose v2. Allow at least 12 GB of free disk for image/build layers; Docker's vfs storage driver can require more.
+
+```bash
+make setup     # frozen Python/npm dependencies and private generated local configuration
+make dev       # PostgreSQL, Kafka, Temporal, API, workers and Next.js console
+make token     # print a short-lived local admin token
+```
+
+Open **http://localhost:3000**, enter the token and select **Run synthetic demo**. The eight synthetic carts demonstrate eligible treatment, service/consent/stock suppression and holdout. Inspect a journey for all five agent proposals; open Governance to pause/resume the tenant. API documentation is at http://localhost:8000/docs and Temporal UI at http://localhost:8233.
+
+The default is observe-only. The demo explicitly enables mock receipts for its authenticated tenant. This cannot activate a real vendor. Tokens stay in browser memory and expire after two hours. `make down` stops services while preserving database, broker and workflow volumes. `make demo` is a CLI alternative to the console demo.
+
+For a smaller local runner, run `make setup`, `make local`, then `npm run dev` in `apps/growth-console` in another terminal. It uses SQLite and synchronous execution for developer testing; use Docker/Temporal for durable processing.
+
+For managed environments with an inspecting HTTPS proxy, pass the trusted public CA as a build secret using [deployment/compose.proxy-build.yaml](deployment/compose.proxy-build.yaml). Do not disable TLS verification.
+
+## Implemented behavior
+
+- Strict versioned event/API DTOs; tenant derived from signed JWT/OIDC claims, not request bodies; role, purpose and region checks.
+- Marketing, Advertising, Sales, Commerce and Service agents return schema-validated proposals. A deterministic baseline works without an LLM. Only the approved recovery journey can cause a mock write.
+- Current identity, purpose, consent, severe service case, order, inventory, price freshness, frequency, cohort, optional human approval and emergency switch checks immediately before activation.
+- PostgreSQL RLS with a NOSUPERUSER/NOBYPASSRLS app role, tenant transaction locks and append-only audit permissions/trigger.
+- Transactional ingest/outbox, Kafka replay, stable Temporal workflow IDs, bounded safe retries, independent vendor idempotency/status lookup, ambiguous-result review and operator DLQ replay.
+- Stable treatment/control assignment, confirmed mock exposure, customer-level conversion windows, currency-separated attributed revenue and conservative uncertainty intervals. Attributed revenue is never labeled incremental revenue.
+- Responsive operator console with keyboard dialogs, protected proxy routes, authentication, trace inspection, search, audit and tenant kill switch.
+- Health/readiness endpoints, redacted structured request logs, Prometheus metrics and reference scrape/alert configuration.
+
+## Validate
+
+```bash
+make lint                  # Python formatting/lint/types, API drift, TS, ESLint, AsyncAPI parser
+make test                  # policy, API, adapter, concurrency and recovery tests
+make test-e2e              # synthetic journeys and race scenarios
+make security              # source secret check, Bandit, Python and npm runtime audits
+# Infrastructure must be running:
+docker compose up -d postgres temporal broker
+make test-integration      # real PostgreSQL RLS, Kafka→Temporal and worker restart
+# Browser test (after setup):
+cd apps/growth-console
+npm run build
+npx playwright install chromium
+npm test
+```
+
+[GitHub Actions](.github/workflows/ci.yml) runs quality/security, durable-stack and browser jobs. CI results are separate from the locally executed evidence in [delivery/IMPLEMENTATION_STATUS.md](delivery/IMPLEMENTATION_STATUS.md). In managed environments with a preinstalled browser, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium`.
+
+## Repository map
+
 | Path | Purpose |
 |---|---|
-| [architecture/L2-components.md](architecture/L2-components.md) | Detailed component topology and ownership matrix |
-| [architecture/L3-sequences.md](architecture/L3-sequences.md) | Cross-system journey diagrams and failure recovery |
-| [contracts/openapi.yaml](contracts/openapi.yaml) | Reference OpenAPI 3.1 synchronous interface |
-| [contracts/asyncapi.yaml](contracts/asyncapi.yaml) | Reference AsyncAPI 3.0 event topics and payloads |
-| [schemas/postgres.sql](schemas/postgres.sql) | Reference operational data DDL (requires hardening) |
-| [workflows/agent-policies.yaml](workflows/agent-policies.yaml) | Proposed permissions, eligibility and approval policies |
-| [deployment/kubernetes.yaml](deployment/kubernetes.yaml) | Illustrative Kubernetes manifest, **not** production-ready |
-| [delivery/backlog.csv](delivery/backlog.csv) | 18 prioritized implementation items |
-| [delivery/NFR-and-tests.md](delivery/NFR-and-tests.md) | Nonfunctional requirements, SLO targets and test matrix |
+| `src/growth/api.py`, `auth.py` | Authenticated operator/producer API and tenant claims |
+| `src/growth/engine.py` | Transactional decisions, gateway, lifecycle and measurement |
+| `src/growth/agents.py`, `policy.py` | Five bounded planners and deterministic eligibility |
+| `src/growth/adapters.py` | Typed adapter protocols and independent synthetic authority |
+| `src/growth/temporal_worker.py`, `event_worker.py` | Durable execution, broker consumer and outbox dispatcher |
+| `apps/growth-console/` | Next.js/React/TypeScript operator console |
+| `contracts/`, `packages/contracts/` | OpenAPI 3.1, AsyncAPI 3.0, event JSON Schema, generated TS |
+| `schemas/`, `scripts/migrate.py` | Additive migration, RLS and audit protection |
+| `tests/` | Unit/API/event/E2E and real-infrastructure tests |
+| `workflows/agent-policies.yaml` | Versioned approved journey, experiment, caps and retries |
+| `deployment/`, `delivery/` | Reference deployment, runbook, acceptance map and backlog |
 
-## Proposed technology stack (not yet implemented)
-- **UI:** Next.js / React / TypeScript.
-- **Services:** Python, FastAPI, Pydantic.
-- **Workflow orchestration:** Temporal, with structured domain-agent services and an optional LLM model gateway.
-- **Decision engine:** deterministic eligibility/ranking baseline; calibrated ML/LLMs only after validated need.
-- **Integration/eventing:** Kafka-compatible event bus, schema registry, governed vendor tool adapters.
-- **Operational data:** PostgreSQL; optional Redis cache; enterprise CDP/warehouse remains external authority.
-- **Infrastructure:** local Docker Compose for development; Kubernetes/cloud managed services as enterprise deployment reference.
-- **Quality:** pytest, contract validation, integration and E2E fixtures, security scanning, telemetry.
+The supplied [PRD](PRD.md), [architecture](ARCHITECTURE.md), [data model](DATA_MODEL.md), [implementation plan](IMPLEMENTATION_PLAN.md) and [repository guidance](AGENTS.md) remain design context. [ADR-007](architecture/adr/007-local-reference-runtime.md) documents the implemented compact storage/runtime choices and the difference between this mock MVP and the proposed enterprise target.
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for alternatives and decision constraints.
+## Extend safely
 
-## Intended developer workflow
-**Today:** These are design artifacts, not a runnable codebase. Begin by reviewing PRD acceptance criteria and the target application/data assumptions, then follow [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) to create services and infrastructure.
+Replace a typed mock adapter with one approved sandbox connector, retaining the synthetic contract tests. The connector must support tenant-scoped credentials, source freshness, stable idempotency and authoritative status reconciliation. Configure approved OIDC issuer/audience/JWKS and verified human identity claims; the local token minting path is development only. Enterprise broker ACLs, immutable audit archiving, data retention/residency, HA topology and measured SLOs require explicit implementation and validation before a real pilot.
 
-1. Read [AGENTS.md](AGENTS.md), [PRD.md](PRD.md), and [ARCHITECTURE.md](ARCHITECTURE.md).
-2. Review event/API schemas and safety policy; create or update contract tests before implementation.
-3. Implement Phase 1 developer skeleton, local services and fixtures.
-4. Implement the first vertical slice with synthetic cart/customer/case/order data and mock MarTech journey activation.
-5. Run lint/types/unit/contract/E2E, security and race/replay tests; keep source-of-truth rechecks at execution time.
-6. Propose changes via small PRs linking acceptance criteria; update ADRs, documentation, schemas and migrations together.
-
-**Planned developer commands (not yet available):**
-```bash
-make setup       # install tools and create local configuration
-make dev         # start synthetic local services
-make lint        # lint, type checks, contracts
-make test        # unit and component tests
-make test-e2e    # cross-system synthetic journeys
-make security    # scans and security-focused tests
-make down        # stop local dependencies
-```
-Do not run these commands expecting success until the Makefile and application code have been created in Phase 1.
-
-## Suggested future source layout
-```text
-enterprise-customer-growth-ai/
-├── apps/growth-console/              # operator UI (future)
-├── services/growth-api/              # HTTP interfaces (future)
-├── services/decision-service/        # deterministic NBA + models (future)
-├── services/policy-gateway/          # tools, consent, approvals (future)
-├── services/workflow-worker/         # Temporal orchestration (future)
-├── adapters/                         # mock and vendor adapters (future)
-├── packages/contracts/               # generated clients and types (future)
-├── tests/                            # unit/contract/E2E/chaos (future)
-├── architecture/                     # existing detailed L2/L3 design
-├── contracts/                        # existing OpenAPI/AsyncAPI
-├── schemas/                          # existing reference DDL
-├── workflows/                        # existing policy baseline
-├── deployment/                       # illustrative infra
-├── delivery/                         # NFRs and backlog
-├── PRD.md
-├── ARCHITECTURE.md
-├── DATA_MODEL.md
-├── IMPLEMENTATION_PLAN.md
-├── AGENTS.md
-└── README.md
-```
-
-## Trust and deployment posture
-This is a **reference build package**, not an enterprise-approved product. No live end-user messaging, CRM mutation, advertising spend, pricing changes, personal information ingestion or production credentials are authorized by this repository. All production tool scopes, legal bases, data residency, vendor permissions, human approvals, performance SLOs and retention policies require client review and explicit approval.
-
-## Suggested first engineering issue
-**CG-001: Initialize the local development and CI contract-validation skeleton.** Deliver an executable FastAPI health endpoint, PostgreSQL migration harness, Temporal dev runtime, Kafka-compatible broker, synthetic adapters, contract linting and one smoke test. Success: a new engineer can clone the repo and run a complete synthetic stack with documented commands, without paid API keys.
-
-## Project status / open decisions
-- Vendor-neutral baseline; no enterprise system provider selected.
-- Multi-region production topology is a proposal, not a deployment.
-- B2B sales and paid media workflows are post-MVP expansion tracks.
-- Business owner, marketing contact rules, experiment thresholds and production rollout policy must be defined with the target organization.
+Operational procedures, rollback and failure recovery are in [delivery/RUNBOOK.md](delivery/RUNBOOK.md).

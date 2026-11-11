@@ -1,0 +1,19 @@
+id,title,priority,status
+CG-001,Developer skeleton and CI,P0,implemented
+CG-002,Canonical event validation and dedupe,P0,implemented
+CG-003,Synthetic context and identity adapters,P0,implemented
+CG-004,Consent and severe case suppression,P0,implemented
+CG-005,Order inventory and price eligibility,P0,implemented
+CG-006,Deterministic domain proposals and policy,P0,implemented
+CG-007,Stable experiment assignment,P0,implemented
+CG-008,Temporal workflow and outbox dispatch,P0,implemented
+CG-009,Mock journey gateway and reconciliation,P0,implemented
+CG-010,Human review and emergency switches,P0,implemented
+CG-011,Audit and correlation queries,P0,implemented
+CG-012,Operator console and browser tests,P0,implemented
+CG-013,Conversion cohorts and uncertainty,P0,implemented
+CG-014,Policy isolation and recovery verification,P0,implemented
+CG-015,Production SLO and governance approval,P0,pending_external_validation
+CG-016,Vendor sandbox connector,P1,pending
+CG-017,Sales qualification and task mutation,P1,pending
+CG-018,Advertising audience activation and regional scaling,P2,pending

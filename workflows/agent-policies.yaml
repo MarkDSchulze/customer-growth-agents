@@ -1,0 +1,16 @@
+version: policy-v1
+purpose: cart_recovery
+region: us-east-1
+dryRun: true
+approvedJourney: cart-recovery-v1
+experiment: cart-recovery-2026-v1
+holdoutFraction: 0.2
+frequencyHours: 24
+maxAttempts: 3
+observationHours: 72
+allowedTools:
+  Marketing: [trigger_approved_journey]
+  Advertising: [recommend_only]
+  Sales: [recommend_only]
+  Commerce: [recommend_only]
+  Service: [recommend_only]

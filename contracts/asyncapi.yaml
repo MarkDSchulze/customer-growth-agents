@@ -1,0 +1,43 @@
+asyncapi: 3.0.0
+info:
+  title: Customer Growth Events
+  version: 1.0.0
+defaultContentType: application/json
+channels:
+  cartAbandoned:
+    address: commerce.cart_abandoned.v1
+    messages:
+      canonical: {$ref: '#/components/messages/Canonical'}
+  orderPlaced:
+    address: commerce.order_placed.v1
+    messages:
+      canonical: {$ref: '#/components/messages/Canonical'}
+  caseEscalated:
+    address: service.case_escalated.v1
+    messages:
+      canonical: {$ref: '#/components/messages/Canonical'}
+  actionExecuted:
+    address: growth.action_executed.v1
+    messages:
+      canonical: {$ref: '#/components/messages/Canonical'}
+operations:
+  receiveCart:
+    action: receive
+    channel: {$ref: '#/channels/cartAbandoned'}
+  receiveOrder:
+    action: receive
+    channel: {$ref: '#/channels/orderPlaced'}
+  receiveCase:
+    action: receive
+    channel: {$ref: '#/channels/caseEscalated'}
+  sendAction:
+    action: send
+    channel: {$ref: '#/channels/actionExecuted'}
+components:
+  messages:
+    Canonical:
+      name: CanonicalEventV1
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-2020-12
+        schema: {$ref: './event.schema.json'}

@@ -1,0 +1,1 @@
+`api.d.ts` is generated from the committed OpenAPI contract using `npm run contracts` in the console. `contracts/event.schema.json` is the canonical event validator. Breaking changes require a new version and producer/consumer updates.

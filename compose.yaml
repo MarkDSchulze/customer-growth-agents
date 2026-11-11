@@ -1,0 +1,98 @@
+name: customer-growth-agents
+x-app: &app
+  build: .
+  env_file: .env
+  environment: &runtime
+    NO_PROXY: ${NO_PROXY:-localhost,127.0.0.1},0.0.0.0,postgres,temporal,broker,api
+    no_proxy: ${NO_PROXY:-localhost,127.0.0.1},0.0.0.0,postgres,temporal,broker,api
+    GROWTH_DATABASE_URL: postgresql+psycopg://growth_app:${GROWTH_APP_DB_PASSWORD:?run make setup}@postgres:5432/growth
+    GROWTH_VENDOR_DATABASE_URL: postgresql+psycopg://growth_owner:${GROWTH_DB_PASSWORD:?run make setup}@postgres:5432/vendor
+    GROWTH_EXECUTION: temporal
+    GROWTH_TEMPORAL_ADDRESS: temporal:7233
+    GROWTH_KAFKA_SERVERS: broker:9092
+  restart: unless-stopped
+services:
+  postgres:
+    image: postgres:16.11-alpine
+    environment:
+      POSTGRES_USER: growth_owner
+      POSTGRES_PASSWORD: ${GROWTH_DB_PASSWORD:?run make setup}
+      POSTGRES_DB: growth
+    ports: [127.0.0.1:5432:5432]
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U growth_owner -d growth]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  temporal:
+    image: temporalio/temporal:1.5.1
+    user: "0:0" # Local dev server needs to initialize its persistent volume.
+    environment:
+      NO_PROXY: ${NO_PROXY:-localhost,127.0.0.1},0.0.0.0,localhost,temporal
+      no_proxy: ${NO_PROXY:-localhost,127.0.0.1},0.0.0.0,localhost,temporal
+    command: [server, start-dev, --ip, 0.0.0.0, --db-filename, /data/temporal.db]
+    ports: [127.0.0.1:7233:7233, 127.0.0.1:8233:8233]
+    volumes: [temporal-data:/data]
+  broker:
+    image: apache/kafka-native:4.1.0
+    user: "0:0" # Development broker volume initialization only.
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:19092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,EXTERNAL://localhost:19092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@broker:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+    ports: [127.0.0.1:19092:19092]
+    volumes: [broker-data:/tmp/kraft-combined-logs]
+  migrate:
+    <<: *app
+    restart: 'no'
+    command: [python, scripts/migrate.py]
+    environment:
+      <<: *runtime
+      GROWTH_MIGRATION_URL: postgresql+psycopg://growth_owner:${GROWTH_DB_PASSWORD}@postgres:5432/growth
+    depends_on:
+      postgres: {condition: service_healthy}
+  api:
+    <<: *app
+    ports: [127.0.0.1:8000:8000]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8000/readyz')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  workflow-worker:
+    <<: *app
+    command: [python, -m, growth.temporal_worker]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      temporal: {condition: service_started}
+  event-worker:
+    <<: *app
+    command: [python, -m, growth.event_worker]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      temporal: {condition: service_started}
+      broker: {condition: service_started}
+  console:
+    build: ./apps/growth-console
+    ports: [127.0.0.1:3000:3000]
+    environment:
+      GROWTH_API_URL: http://api:8000
+    depends_on:
+      api: {condition: service_healthy}
+volumes:
+  pg-data:
+  temporal-data:
+  broker-data:
