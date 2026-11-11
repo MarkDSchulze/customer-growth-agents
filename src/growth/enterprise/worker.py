@@ -15,6 +15,7 @@ from temporalio.worker import Worker
 with workflow.unsafe.imports_passed_through():
     from confluent_kafka import Consumer, Producer
     from sqlalchemy import select
+
     from growth.broker import configuration
     from growth.config import Settings, settings
     from growth.contracts import Principal

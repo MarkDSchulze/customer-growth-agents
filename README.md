@@ -4,7 +4,7 @@ A vendor-neutral, governed multi-agent system spanning **Marketing, Advertising,
 
 Version 0.2 adds normalized regional workflows, five domain tools, a portfolio console, tenant identity bindings, optional model advice, sandbox connectors, immutable audit export and deployment automation. The original `/v1` service-aware cart recovery contracts remain supported. The implementation is runnable and tested with synthetic data; account-specific sandbox acceptance, production load, recovery and business approvals remain release gates.
 
-![Operator console](docs/console.png)
+![Operator console](docs/enterprise.png)
 
 ## Run
 
