@@ -10,7 +10,7 @@ Currency = Annotated[str, StringConstraints(pattern=r"^[A-Z]{3}$")]
 
 
 class DTO(BaseModel):
-    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+    model_config = ConfigDict(extra="forbid", populate_by_name=True, hide_input_in_errors=True)
 
 
 class CartAbandoned(DTO):
@@ -115,9 +115,17 @@ class Principal(DTO):
     subject: Ref
     identityType: Literal["human", "workload"] = "workload"
     tenant: Ref
-    region: Literal["us-east-1"]
+    region: Literal["us-east-1", "eu-west-1", "ap-southeast-2"]
     role: Literal["viewer", "operator", "admin", "producer", "platform_admin"]
-    purposes: list[Literal["cart_recovery"]]
+    purposes: list[
+        Literal[
+            "cart_recovery",
+            "lead_qualification",
+            "audience_activation",
+            "commerce_personalization",
+            "service_recovery",
+        ]
+    ]
 
 
 class DecisionRequest(DTO):

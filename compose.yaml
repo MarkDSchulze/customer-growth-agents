@@ -1,12 +1,16 @@
 name: customer-growth-agents
 x-app: &app
+  image: customer-growth-api:local
   build: .
   env_file: .env
   environment: &runtime
-    NO_PROXY: ${NO_PROXY:-localhost,127.0.0.1},0.0.0.0,postgres,temporal,broker,api
-    no_proxy: ${NO_PROXY:-localhost,127.0.0.1},0.0.0.0,postgres,temporal,broker,api
+    NO_PROXY: ${NO_PROXY:-localhost,127.0.0.1},0.0.0.0,postgres,temporal,broker,api,sandbox
+    no_proxy: ${NO_PROXY:-localhost,127.0.0.1},0.0.0.0,postgres,temporal,broker,api,sandbox
     GROWTH_DATABASE_URL: postgresql+psycopg://growth_app:${GROWTH_APP_DB_PASSWORD:?run make setup}@postgres:5432/growth
     GROWTH_VENDOR_DATABASE_URL: postgresql+psycopg://growth_owner:${GROWTH_DB_PASSWORD:?run make setup}@postgres:5432/vendor
+    GROWTH_SANDBOX_URL: http://sandbox:8100
+    GROWTH_SANDBOX_ALLOWED_HOSTS: '["sandbox"]'
+    GROWTH_ALLOW_INTERNAL_SANDBOX: 'true'
     GROWTH_EXECUTION: temporal
     GROWTH_TEMPORAL_ADDRESS: temporal:7233
     GROWTH_KAFKA_SERVERS: broker:9092
@@ -85,7 +89,21 @@ services:
       migrate: {condition: service_completed_successfully}
       temporal: {condition: service_started}
       broker: {condition: service_started}
+  enterprise-worker:
+    <<: *app
+    command: [python, -m, growth.enterprise.worker]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      temporal: {condition: service_started}
+      broker: {condition: service_started}
+      sandbox: {condition: service_started}
+  sandbox:
+    <<: *app
+    command: [uvicorn, 'growth.enterprise.sandbox:create_sandbox', --factory, --host, 0.0.0.0, --port, '8100', --no-access-log]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
   console:
+    image: customer-growth-console:local
     build: ./apps/growth-console
     ports: [127.0.0.1:3000:3000]
     environment:

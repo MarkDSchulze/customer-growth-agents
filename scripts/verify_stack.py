@@ -4,6 +4,7 @@ import asyncio
 import os
 import subprocess  # nosec B404
 import sys
+from contextlib import ExitStack
 from pathlib import Path
 
 from confluent_kafka.admin import AdminClient
@@ -27,6 +28,9 @@ env.update(
         "GROWTH_TEMPORAL_ADDRESS": "localhost:7233",
         "GROWTH_EXECUTION": "temporal",
         "GROWTH_INTEGRATION": "1",
+        "GROWTH_SANDBOX_URL": "http://localhost:8100",
+        "GROWTH_SANDBOX_ALLOWED_HOSTS": '["localhost"]',
+        "GROWTH_ALLOW_INTERNAL_SANDBOX": "true",
     }
 )
 
@@ -52,10 +56,30 @@ subprocess.run(  # nosec B603
     [sys.executable, "scripts/migrate.py"], cwd=root, env=env, check=True
 )
 (root / "work").mkdir(exist_ok=True)
-with (root / "work/event-worker.log").open("w") as log:
-    process = subprocess.Popen(  # nosec B603
-        [sys.executable, "-m", "growth.event_worker"], cwd=root, env=env, stdout=log, stderr=log
-    )
+commands = [
+    (
+        "sandbox",
+        [
+            sys.executable,
+            "-m",
+            "uvicorn",
+            "growth.enterprise.sandbox:create_sandbox",
+            "--factory",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "8100",
+            "--no-access-log",
+        ],
+    ),
+    ("event-worker", [sys.executable, "-m", "growth.event_worker"]),
+    ("enterprise-worker", [sys.executable, "-m", "growth.enterprise.worker"]),
+]
+with ExitStack() as stack:
+    processes = []
+    for name, command in commands:
+        log = stack.enter_context((root / "work" / f"{name}.log").open("w"))
+        processes.append(subprocess.Popen(command, cwd=root, env=env, stdout=log, stderr=log))  # nosec B603
     try:
         result = subprocess.run(  # nosec B603
             [sys.executable, "-m", "pytest", "-m", "integration", "-q"],
@@ -64,6 +88,7 @@ with (root / "work/event-worker.log").open("w") as log:
             check=False,
         )
     finally:
-        process.terminate()
-        process.wait(timeout=10)
+        for process in reversed(processes):
+            process.terminate()
+            process.wait(timeout=10)
 raise SystemExit(result.returncode)

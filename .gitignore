@@ -16,3 +16,8 @@ work/
 *.egg-info/
 *.tsbuildinfo
 work-requirements.txt
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.auto.tfvars

@@ -41,3 +41,15 @@ For enterprise deployment, test encrypted backup restoration of PostgreSQL, brok
 ## Synthetic experiment interpretation
 
 Assignments use SHA-256 over tenant/customer/experiment and remain stable on replay. Only eligible customers enter the denominator. Control receives no activation. The mock provider confirms delivery on acceptance; real providers require delivery evidence. Outcomes match customer identity and event time within 72 hours of assignment. Revenue remains separated by currency. Lift is descriptive with a conservative interval; small samples and incomplete windows prevent business claims. Approve sample size/power, estimand and observation policy before a real experiment.
+
+## Version 0.2 regional workflows
+
+Open Enterprise workflows for the all-domain demo, agent reports and human Advertising approval. `/v2/workflows` uses cursor pagination; `/v2/operations` reports operational counts. The regional worker queue is `growth-enterprise-v2-<region>` with Temporal ID `enterprise-<region>-<workflowId>-<generation>`. `docker compose logs --tail 100 enterprise-worker sandbox` diagnoses its synthetic bridge. The original workers continue to serve v1.
+
+Provision policy through platform-admin `PUT /v2/tenants`. Tenant/global switches, allowed domains/purposes, minute ingestion quota, hourly action reservations, pending workflow limit and contact caps are enforced server-side. Increasing limits requires a new policy version. Policy, identity, consent, order or source changes invalidate stale eligibility before effects. Human approvals bind the plan hash/version and expire; verified workload identities and the requestor cannot approve their own plans.
+
+Cancel via `/v2/workflows/{id}/cancel`; replay recoverable review failures via `/v2/workflows/{id}/replay`. Replay starts a new Temporal generation while retaining action keys and provider receipts. Never delete accepted receipts or alter keys to force sending. Unknown provider status requires investigation rather than blind retry. Outbox publisher failures retain unpublished rows and broker redelivery is safe.
+
+Use `/v2/audit/export` with an all-purpose-scoped tenant admin token for NDJSON hash-chain evidence. Export snapshots a high-water sequence and pages without holding a database transaction over the network. `scripts/archive_audit.py --token-file <private-file> --output <export.ndjson>` verifies the chain; optional `--bucket`, `--kms-key` and `--account` write a KMS-encrypted, 365-day COMPLIANCE Object Lock object. Run only with an approved AWS role. Avoid placing tokens on command lines. The operator CLI buffers the tenant export, so schedule bounded export sizes.
+
+Migration 002 adds normalized v2 tables/RLS and leaves v1 data/contracts intact. Stop new v2 ingress and drain/reconcile pending actions before rolling back code; preserve all v2 audit, assignment, identity and receipt records. Restore databases and Temporal/broker checkpoints together in an isolated rehearsal before production. See [AWS setup](../infrastructure/aws/README.md) and [connector configuration](CONNECTORS.md).

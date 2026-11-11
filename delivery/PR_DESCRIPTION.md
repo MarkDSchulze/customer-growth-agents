@@ -1,9 +1,9 @@
-## Build governed customer growth orchestration
+Build the five-domain customer growth platform with a vendor-neutral regional core and AWS, Salesforce, Adobe Experience Platform and Shopify integration boundaries.
 
-The repository starts with design specifications and gains a runnable synthetic service-aware cart recovery system. Five typed domain planners coordinate context and recommendations; deterministic policy, authenticated tenant scope, approved journey configuration and an idempotent gateway govern mock execution. PostgreSQL, Kafka and Temporal preserve receipts and workflow state, and the Next.js operator console exposes decisions, correlated audit, experiments, replay and emergency controls.
+- Add v2 typed workflows, dependency-aware agents, deterministic execution controls, identity bindings, approval separation, quotas, immutable audit and recoverable regional Kafka/Temporal execution while preserving v1.
+- Add the enterprise operator console, optional constrained model gateway, tenant-scoped sandbox connectors, signed Shopify orders, descriptive budget drafts and S3 audit archiving.
+- Add private AWS infrastructure, hardened Helm deployment, additive RLS migration, runbooks and complete-stack/load CI evidence.
 
-The implementation includes contract exports/generated types, dependency locks, additive migrations with RLS and append-only audit, failure injection, local Compose services, CI and an operator runbook. ADR-007 documents the compact deployment/store choices and remaining enterprise release gates. Sales/Advertising remain recommendation-only; this change enables no live contact, spending, pricing or discount mutation.
+Validation: Python/TypeScript checks, versioned contracts, synthetic policy/API/adapter/E2E tests, browser accessibility tests, real PostgreSQL/Kafka/Temporal tests, Terraform/Helm validation and complete-container/load jobs. See PR checks and artifacts for final results.
 
-Validation: 41 application/API/adapter/E2E tests; two real PostgreSQL/Kafka/Temporal tests including worker restart; two desktop/mobile browser tests; automated WCAG A/AA overview checks; Python lint/format/strict typing; TypeScript/ESLint; OpenAPI and AsyncAPI validation; secret/SAST and runtime dependency audits; production frontend build; both Docker image builds and unprivileged container smoke checks. Full-stack tests ran in stages due the build environment's disk capacity. Production load, HA/DR and external governance acceptance remain open.
-
-Rollback: preserve operational/vendor receipts, broker offsets, audit records and Temporal histories; roll back a compatible application image. Migration 001 is additive. See delivery/RUNBOOK.md.
+Deployment boundary: no paid infrastructure applied or live customer actions enabled. Provider sandbox acceptance, production volume/restore drills and business/security/privacy approval remain account-specific release gates. Adobe activation requires an approved idempotent bridge with delivery confirmation; Salesforce writes are sandbox internal tasks only.

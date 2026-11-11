@@ -1,8 +1,11 @@
 """Create local secrets once; never overwrite a developer's configuration."""
 
+import json
 import os
 import secrets
 from pathlib import Path
+
+from dotenv import dotenv_values
 
 path = Path(".env")
 if not path.exists():
@@ -14,3 +17,12 @@ if not path.exists():
     print("Created private .env for synthetic local development.")
 else:
     print("Kept existing .env.")
+
+# Add newly introduced local-only credentials without changing any existing value.
+
+values = dotenv_values(path)
+if not values.get("GROWTH_SANDBOX_BINDINGS"):
+    binding = {"tenant-demo": {"region": "us-east-1", "token": secrets.token_urlsafe(40)}}
+    with path.open("a") as file:
+        file.write("GROWTH_SANDBOX_BINDINGS='" + json.dumps(binding, separators=(",", ":")) + "'\n")
+    print("Added private synthetic connector binding.")

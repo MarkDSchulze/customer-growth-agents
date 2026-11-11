@@ -11,6 +11,7 @@ from sqlalchemy import (
     String,
     UniqueConstraint,
     create_engine,
+    event,
     text,
 )
 from sqlalchemy.engine import Engine
@@ -81,7 +82,14 @@ def engine(url: str) -> Engine:
         kwargs["connect_args"] = {"check_same_thread": False, "timeout": 30}
         if ":memory:" in url:
             kwargs["poolclass"] = StaticPool
-    return create_engine(url, **kwargs)
+    created = create_engine(url, **kwargs)
+    if url.startswith("sqlite"):
+
+        @event.listens_for(created, "connect")
+        def enable_foreign_keys(connection: Any, record: Any) -> None:
+            connection.execute("PRAGMA foreign_keys=ON")
+
+    return created
 
 
 @contextmanager

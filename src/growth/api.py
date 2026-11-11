@@ -37,10 +37,23 @@ LATENCY = Histogram("growth_http_seconds", "Request latency")
 def create_app(config: Settings | None = None, core: GrowthEngine | None = None) -> FastAPI:
     configure()
     config = config or settings()
+    from growth.observability import initialize, instrument_app
+
+    tracing = initialize(config)
+    custom_core = core is not None
     if core is None:
         db, vendor_db = engine(config.database_url), engine(config.vendor_database_url)
         core = GrowthEngine(db, vendor_db, Policy.load(config.policy_path))
     growth = core
+    from growth.enterprise.api import routes
+    from growth.enterprise.runtime import create_service
+    from growth.enterprise.service import EnterpriseService
+
+    enterprise = (
+        EnterpriseService(growth.db, growth.vendor_db, config.region)
+        if custom_core
+        else create_service(config)
+    )
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -51,6 +64,8 @@ def create_app(config: Settings | None = None, core: GrowthEngine | None = None)
         yield
 
     app = FastAPI(title="Customer Growth Agents", version="1.0.0", lifespan=lifespan)
+    if tracing:
+        instrument_app(app, tracing)
     app.state.config = config
     app.state.engine = growth
     if config.oidc_issuer:
@@ -79,7 +94,12 @@ def create_app(config: Settings | None = None, core: GrowthEngine | None = None)
             extra={
                 "correlationId": correlation,
                 "tenantId": getattr(request.state, "tenant", None),
-                "purpose": "cart_recovery",
+                "purpose": getattr(
+                    request.state,
+                    "purpose",
+                    "cart_recovery" if request.url.path.startswith("/v1/") else "administration",
+                ),
+                "region": getattr(request.state, "region", None),
                 "status": response.status_code,
             },
         )
@@ -87,7 +107,11 @@ def create_app(config: Settings | None = None, core: GrowthEngine | None = None)
 
     @app.exception_handler(DomainError)
     async def domain_error(request: Request, exc: DomainError) -> JSONResponse:
-        return JSONResponse({"detail": exc.code}, status_code=exc.status)
+        return JSONResponse(
+            {"detail": exc.code},
+            status_code=exc.status,
+            headers={"Retry-After": "30"} if exc.status == 429 else None,
+        )
 
     @app.exception_handler(RequestValidationError)
     async def validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
@@ -103,6 +127,10 @@ def create_app(config: Settings | None = None, core: GrowthEngine | None = None)
         try:
             with growth.db.connect() as conn:
                 conn.execute(text("SELECT 1"))
+                if growth.db.dialect.name == "postgresql":
+                    version = conn.scalar(text("SELECT max(version) FROM schema_migration"))
+                    if not version or version < 2:
+                        raise ValueError("SCHEMA_NOT_READY")
             with growth.vendor_db.connect() as conn:
                 conn.execute(text("SELECT 1"))
         except Exception:
@@ -258,6 +286,10 @@ def create_app(config: Settings | None = None, core: GrowthEngine | None = None)
             session.merge(VendorFault(tenant=identity.tenant, mode=body.mode))
         return {"mode": body.mode}
 
+    app.state.enterprise = enterprise
+    app.include_router(
+        routes(enterprise, config.execution, config.source_bindings, config.runtime_mode)
+    )
     return app
 
 

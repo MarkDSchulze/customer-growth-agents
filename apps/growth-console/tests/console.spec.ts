@@ -50,3 +50,26 @@ test('mobile layout, keyboard controls and invalid authentication',async({page})
   const overflowing=await page.evaluate(()=>Array.from(document.querySelectorAll('*')).filter(e=>e.getBoundingClientRect().right>innerWidth+1).map(e=>({tag:e.tagName,cls:e.className,right:e.getBoundingClientRect().right})).slice(0,20));
   expect(overflow,JSON.stringify(overflowing)).toBe(false);
 });
+
+test('all five domain workflows, bound approval and connector registry',async({page})=>{
+  await page.goto('/');
+  await page.getByLabel('Local access token').fill(token());
+  await page.getByRole('button',{name:'Connect workspace'}).click();
+  await expect(page.getByText('Policy controls active')).toBeVisible();
+  await page.getByRole('button',{name:'Enterprise workflows',exact:true}).click();
+  await page.getByRole('button',{name:'Run all domains',exact:true}).click();
+  await expect(page.getByRole('button',{name:'Inspect cust-enterprise-002'})).toBeVisible();
+  await page.getByRole('button',{name:'Inspect cust-enterprise-002'}).click();
+  const detail=page.getByRole('region',{name:'Enterprise workflow details'});
+  await expect(detail.getByRole('button',{name:'Approve bound plan & recheck'})).toBeVisible();
+  await detail.getByRole('button',{name:'Approve bound plan & recheck'}).click();
+  await expect(detail.getByText('accepted',{exact:true})).toBeVisible();
+  await expect(detail.locator('.proposal')).toHaveCount(5);
+  const accessibility=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze();
+  expect(accessibility.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}))).toEqual([]);
+  await page.screenshot({path:'test-results/enterprise.png',fullPage:true});
+  await page.getByRole('button',{name:'Connectors',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Salesforce',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Adobe Experience Platform',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Shopify',exact:true})).toBeVisible();
+});

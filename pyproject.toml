@@ -1,11 +1,16 @@
 [project]
 name = "customer-growth-agents"
-version = "0.1.0"
+version = "0.2.0"
 description = "Governed, vendor-neutral customer growth orchestration"
 requires-python = ">=3.12"
 dependencies = [
     "confluent-kafka==2.16.1",
     "fastapi==0.162.4",
+    "httpx==0.28.1",
+    "opentelemetry-exporter-otlp-proto-http==1.45.2",
+    "opentelemetry-instrumentation-fastapi==0.66b2",
+    "opentelemetry-instrumentation-httpx==0.66b2",
+    "opentelemetry-sdk==1.45.2",
     "prometheus-client==0.26.0",
     "psycopg[binary]==3.3.8",
     "pydantic-settings==2.16.2",
@@ -14,6 +19,12 @@ dependencies = [
     "sqlalchemy==2.1.8",
     "temporalio==1.36.0",
     "uvicorn==0.54.0",
+]
+
+[project.optional-dependencies]
+aws = [
+    "aws-msk-iam-sasl-signer-python==1.0.2",
+    "boto3==1.44.0",
 ]
 
 [dependency-groups]
@@ -56,3 +67,11 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = ["integration: requires PostgreSQL, Temporal and Kafka", "e2e: synthetic workflow tests"]
+
+[[tool.mypy.overrides]]
+module = ["aws_msk_iam_sasl_signer.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["boto3.*", "botocore.*"]
+ignore_missing_imports = true

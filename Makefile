@@ -6,7 +6,7 @@ XDG_CACHE_HOME ?= $(CURDIR)/work/cache
 export XDG_CACHE_HOME
 .PHONY: setup dev local token demo lint test test-e2e test-integration security down contracts
 setup:
-	uv sync --frozen
+	uv sync --frozen --all-extras
 	uv run python scripts/bootstrap.py
 	cd apps/growth-console && npm ci
 
@@ -44,10 +44,22 @@ test-integration:
 security:
 	uv run python scripts/scan_secrets.py
 	uv run bandit -r src scripts -q
-	uv export --quiet --frozen --no-dev --no-emit-project --format requirements-txt -o work-requirements.txt
+	uv export --quiet --frozen --all-extras --no-dev --no-emit-project --format requirements-txt -o work-requirements.txt
 	uv run pip-audit -r work-requirements.txt --disable-pip
 	rm work-requirements.txt
 	cd apps/growth-console && npm audit --omit=dev --audit-level=high
 
 down:
 	docker compose down
+
+.PHONY: infrastructure
+HELM ?= helm
+TERRAFORM ?= terraform
+infrastructure:
+	$(HELM) lint deployment/helm/growth
+	mkdir -p work
+	$(HELM) template growth deployment/helm/growth > work/rendered.yaml
+	uv run python scripts/validate_infrastructure.py work/rendered.yaml
+	$(TERRAFORM) -chdir=infrastructure/aws fmt -check
+	$(TERRAFORM) -chdir=infrastructure/aws init -backend=false -input=false
+	$(TERRAFORM) -chdir=infrastructure/aws validate

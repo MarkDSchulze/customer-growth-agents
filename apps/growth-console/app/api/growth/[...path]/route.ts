@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 async function proxy(request: NextRequest, context: {params: Promise<{path: string[]}>}) {
   const { path } = await context.params;
-  if (path[0] !== 'v1' || path.some(p => !/^[a-zA-Z0-9_.:-]+$/.test(p))) {
+  if (!['v1','v2'].includes(path[0]) || path.some(p => !/^[a-zA-Z0-9_.:-]+$/.test(p))) {
     return NextResponse.json({detail: 'INVALID_PATH'}, {status: 400});
   }
   const authorization = request.headers.get('authorization');
@@ -21,7 +21,7 @@ async function proxy(request: NextRequest, context: {params: Promise<{path: stri
       signal: AbortSignal.timeout(30000), redirect: 'error',
     });
     return new NextResponse(await response.text(), {
-      status: response.status, headers: {'Content-Type': 'application/json', 'Cache-Control': 'no-store'},
+      status: response.status, headers: {'Content-Type': response.headers.get('content-type') ?? 'application/json', 'Cache-Control': 'no-store'},
     });
   } catch {
     return NextResponse.json({detail: 'GROWTH_API_UNAVAILABLE'}, {status: 502});

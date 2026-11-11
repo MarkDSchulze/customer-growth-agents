@@ -1,0 +1,26 @@
+{{- if .Values.migration.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-migrate-{{ .Release.Revision }}
+spec:
+  backoffLimit: 1
+  activeDeadlineSeconds: 300
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: {{ .Release.Name }}, app.kubernetes.io/component: migration}
+    spec:
+      restartPolicy: Never
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      automountServiceAccountToken: false
+      securityContext: {runAsNonRoot: true, runAsUser: 10001, seccompProfile: {type: RuntimeDefault}}
+      containers:
+        - name: migrate
+          image: {{ printf "%s:%s" .Values.image.repository .Values.image.tag | quote }}
+          command: [python, scripts/migrate.py]
+          envFrom:
+            - configMapRef: {name: {{ .Release.Name }}-runtime}
+            - secretRef: {name: {{ .Values.existingSecret }}-migration}
+          securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+          resources: {requests: {cpu: 100m, memory: 128Mi}, limits: {cpu: '1', memory: 512Mi}}
+{{- end }}

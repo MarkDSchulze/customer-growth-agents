@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-regional-boundary
+spec:
+  podSelector:
+    matchLabels: {app.kubernetes.io/name: {{ .Release.Name }}}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: {{ .Values.network.ingressNamespace }}}
+      ports: [{port: 8000, protocol: TCP}]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: kube-system}
+      ports: [{port: 53, protocol: UDP}, {port: 53, protocol: TCP}]
+    {{- if .Values.network.allowedEgressCIDRs }}
+    - to:
+        {{- range .Values.network.allowedEgressCIDRs }}
+        - ipBlock: {cidr: {{ . | quote }}}
+        {{- end }}
+      ports:
+        {{- range .Values.network.allowedEgressPorts }}
+        - {port: {{ . }}, protocol: TCP}
+        {{- end }}
+    {{- end }}

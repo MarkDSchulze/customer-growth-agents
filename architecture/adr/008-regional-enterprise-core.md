@@ -1,0 +1,13 @@
+# ADR-008: Regional vendor-neutral enterprise core
+
+Status: implemented, 2026-11-11. Extends ADR-007 without changing canonical v1 events.
+
+The requested five-domain system needs independent actions and identity/credential lifecycles beyond the initial cart document model. Introduce additive `/v2` APIs, `growth.signal.v2`, normalized tenant/workflow/action/receipt/assignment/outbox/identity/order/audit tables, and region-specific Temporal queues and deployments. Keep v1 compatible for recovery experiments and outcomes.
+
+A bounded shared planner pool runs Service/Commerce assessment before Marketing/Sales/Advertising. Optional model advice is untrusted and cannot authorize effects. All five tools have fixed payloads and deterministic eligibility. Execution serializes only the affected customer in PostgreSQL; tenant controls use an exclusive guard, while unrelated customers can progress concurrently. SQLite is a serial developer runner. Transactions commit execution intent before independent adapter calls; stable keys and provider status reconcile crashes and lost acknowledgements. Replay advances workflow generation while preserving action identity.
+
+Tenant credentials reside in server-side secret templates. Pseudonymous identity bindings reside under forced RLS, with an identity version bound to each plan. Resolve Adobe purpose permission before other provider reads. Require dedicated advertising consent; absent mappings deny. Salesforce task writes require a sandbox origin and a unique external-ID field. Shopify is read-only. Adobe activation requires an approved idempotent bridge with delivery evidence; native profile reads alone cannot establish delivery.
+
+The AWS module provisions private regional infrastructure in an existing VPC. Helm provides independent API/worker replicas, HPA, disruption budgets, AZ distribution, nonroot workloads and default-deny networking. OIDC, verified TLS, regional Temporal, Kafka TLS/IAM, app roles and secret injection are enterprise runtime prerequisites. S3 Object Lock archives are an explicit operator operation. No deployment or paid resource creation is implicit.
+
+Consequences: an executable regional foundation with synthetic end-to-end coverage, rather than a claim of measured production capacity. External sandbox schemas, vendor tenancy/residency, OIDC role assurance, production telemetry, restore drills, representative load and business approvals require account-specific validation. v1 legacy workers are included in Compose; the regional Helm chart deploys v2 workers only. Existing v1 durable traffic needs its separate worker deployment during transition.

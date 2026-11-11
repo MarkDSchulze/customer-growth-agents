@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from growth.api import create_app
 from growth.contracts import ActionExecuted, CartAbandoned, CaseEscalated, Event, OrderPlaced
+from growth.enterprise.contracts import SignalEvent
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--check", action="store_true")
@@ -35,6 +36,7 @@ for file, data in [
     ("contracts/openapi.json", openapi),
     ("contracts/openapi.yaml", openapi),
     ("contracts/event.schema.json", schema),
+    ("contracts/enterprise-event.schema.json", SignalEvent.model_json_schema()),
 ]:
     content = (
         yaml.safe_dump(data, sort_keys=True)

@@ -51,9 +51,19 @@ def principal(
         )
     except (jwt.PyJWTError, ValidationError, KeyError, ValueError):
         raise HTTPException(401, "INVALID_TOKEN") from None
-    if "cart_recovery" not in result.purposes:
+    if result.region != config.region:
+        raise HTTPException(403, "REGION_DENIED")
+    if request.url.path.startswith("/v1/") and (
+        "cart_recovery" not in result.purposes or result.region != "us-east-1"
+    ):
         raise HTTPException(403, "PURPOSE_DENIED")
     request.state.tenant = result.tenant
+    request.state.region = result.region
+    from opentelemetry import trace
+
+    span = trace.get_current_span()
+    span.set_attribute("growth.tenant_id", result.tenant)
+    span.set_attribute("growth.region", result.region)
     return result
 
 

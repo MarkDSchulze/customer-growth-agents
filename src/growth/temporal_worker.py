@@ -4,7 +4,6 @@ from datetime import timedelta
 from typing import Any
 
 from temporalio import activity, workflow
-from temporalio.client import Client
 from temporalio.common import RetryPolicy
 from temporalio.worker import Worker
 
@@ -14,6 +13,7 @@ with workflow.unsafe.imports_passed_through():
     from growth.db import engine
     from growth.engine import TERMINAL, GrowthEngine
     from growth.policy import Policy
+    from growth.workflow_client import connect
 
 TASK_QUEUE = "growth-cart-recovery-v1"
 
@@ -84,7 +84,7 @@ async def main() -> None:
         Policy.load(config.policy_path),
     )
     activities = Activities(core)
-    client = await Client.connect(config.temporal_address, namespace=config.temporal_namespace)
+    client = await connect(config)
     with ThreadPoolExecutor(max_workers=16) as pool:
         worker = Worker(
             client,

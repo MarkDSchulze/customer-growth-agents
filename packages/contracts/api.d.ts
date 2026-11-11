@@ -395,6 +395,312 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v2/advertising/budget-drafts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Budget Draft */
+        post: operations["budget_draft_v2_advertising_budget_drafts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/audit/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Audit */
+        get: operations["audit_v2_audit_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/connectors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Connectors */
+        get: operations["connectors_v2_connectors_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ingest */
+        post: operations["ingest_v2_events_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/identity-bindings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Identity Binding */
+        put: operations["identity_binding_v2_identity_bindings_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/operations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Operations */
+        get: operations["operations_v2_operations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/simulation/context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Fixture */
+        put: operations["fixture_v2_simulation_context_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/simulation/demo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Demo */
+        post: operations["demo_v2_simulation_demo_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/tenant": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tenant */
+        get: operations["tenant_v2_tenant_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/tenants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Provision */
+        put: operations["provision_v2_tenants_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/webhooks/shopify/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Shopify Order */
+        post: operations["shopify_order_v2_webhooks_shopify_orders_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/workflows": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Workflows */
+        get: operations["workflows_v2_workflows_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/workflows/{wid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Workflow */
+        get: operations["workflow_v2_workflows__wid__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/workflows/{wid}/approval": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve */
+        post: operations["approve_v2_workflows__wid__approval_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/workflows/{wid}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel */
+        post: operations["cancel_v2_workflows__wid__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/workflows/{wid}/execute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Execute */
+        post: operations["execute_v2_workflows__wid__execute_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/workflows/{wid}/plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Plan */
+        post: operations["plan_v2_workflows__wid__plan_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/workflows/{wid}/replay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Replay */
+        post: operations["replay_v2_workflows__wid__replay_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -428,6 +734,127 @@ export interface components {
              * @enum {string}
              */
             decision: "approved" | "rejected";
+        };
+        /** ApprovalDecision */
+        ApprovalDecision: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "approved" | "rejected";
+            /** Planhash */
+            planHash: string;
+        };
+        /** BudgetDraft */
+        BudgetDraft: {
+            /** Channels */
+            channels: components["schemas"]["ChannelEvidence"][];
+            /** Currency */
+            currency: string;
+            /** Observations */
+            observations: number;
+            /** Totalbudget */
+            totalBudget: number;
+        };
+        /** ChannelEvidence */
+        ChannelEvidence: {
+            /**
+             * Channel
+             * @enum {string}
+             */
+            channel: "paid_search" | "paid_social" | "display";
+            /** Contribution */
+            contribution: number;
+            /** Conversions */
+            conversions: number;
+            /** Spend */
+            spend: number;
+        };
+        /** CustomerContext */
+        CustomerContext: {
+            /**
+             * Accounttier
+             * @default self_service
+             * @enum {string}
+             */
+            accountTier: "strategic" | "self_service";
+            /**
+             * Advertisingconsent
+             * @default false
+             */
+            advertisingConsent: boolean;
+            /**
+             * Audienceref
+             * @default approved-growth-audience-v1
+             * @constant
+             */
+            audienceRef: "approved-growth-audience-v1";
+            /** Customerref */
+            customerRef: string;
+            /**
+             * Emailconsent
+             * @default false
+             */
+            emailConsent: boolean;
+            /**
+             * Engagement
+             * @default 0
+             */
+            engagement: number;
+            /**
+             * Identityknown
+             * @default true
+             */
+            identityKnown: boolean;
+            /**
+             * Identityversion
+             * @default synthetic-v1
+             */
+            identityVersion: string;
+            /**
+             * Leadfit
+             * @default 0
+             */
+            leadFit: number;
+            /**
+             * Observedat
+             * Format: date-time
+             */
+            observedAt: string;
+            /**
+             * Ordered
+             * @default false
+             */
+            ordered: boolean;
+            /** Products */
+            products?: components["schemas"]["Product"][];
+            /** Purposeallowed */
+            purposeAllowed?: ("cart_recovery" | "lead_qualification" | "audience_activation" | "commerce_personalization" | "service_recovery")[];
+            /**
+             * Region
+             * @enum {string}
+             */
+            region: "us-east-1" | "eu-west-1" | "ap-southeast-2";
+            /**
+             * Sellertaskexists
+             * @default false
+             */
+            sellerTaskExists: boolean;
+            /**
+             * Servicerecovered
+             * @default false
+             */
+            serviceRecovered: boolean;
+            /**
+             * Severecase
+             * @default false
+             */
+            severeCase: boolean;
+            /**
+             * Sourceavailable
+             * @default true
+             */
+            sourceAvailable: boolean;
         };
         /** DecisionRequest */
         DecisionRequest: {
@@ -498,10 +925,98 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** IdentityBinding */
+        IdentityBinding: {
+            /** Adobeprofile */
+            adobeProfile: string;
+            /** Customerref */
+            customerRef: string;
+            /**
+             * Region
+             * @enum {string}
+             */
+            region: "us-east-1" | "eu-west-1" | "ap-southeast-2";
+            /** Salesforcecontact */
+            salesforceContact: string;
+            /** Shopifycustomer */
+            shopifyCustomer: string;
+            /** Shopifyvariants */
+            shopifyVariants?: string[];
+        };
         /** KillCommand */
         KillCommand: {
             /** Enabled */
             enabled: boolean;
+        };
+        /** Product */
+        Product: {
+            /**
+             * Currency
+             * @default USD
+             */
+            currency: string;
+            /**
+             * Entitled
+             * @default true
+             */
+            entitled: boolean;
+            /** Instock */
+            inStock: boolean;
+            /**
+             * Pricecurrent
+             * @default true
+             */
+            priceCurrent: boolean;
+            /** Productref */
+            productRef: string;
+        };
+        /** SignalEvent */
+        SignalEvent: {
+            /** Aggregateid */
+            aggregateId: string;
+            /**
+             * Correlationid
+             * Format: uuid
+             */
+            correlationId: string;
+            /** Customerref */
+            customerRef: string;
+            /**
+             * Eventid
+             * Format: uuid
+             */
+            eventId: string;
+            /**
+             * Eventtype
+             * @default growth.signal.v2
+             * @constant
+             */
+            eventType: "growth.signal.v2";
+            /**
+             * Occurredat
+             * Format: date-time
+             */
+            occurredAt: string;
+            /**
+             * Region
+             * @enum {string}
+             */
+            region: "us-east-1" | "eu-west-1" | "ap-southeast-2";
+            /**
+             * Schemaversion
+             * @default 2.0.0
+             * @constant
+             */
+            schemaVersion: "2.0.0";
+            /**
+             * Signal
+             * @enum {string}
+             */
+            signal: "cart_abandoned" | "lead_submitted" | "audience_requested" | "product_interest" | "service_risk" | "case_resolved";
+            /** Source */
+            source: string;
+            /** Tenantid */
+            tenantId: string;
         };
         /** Snapshot */
         Snapshot: {
@@ -555,6 +1070,67 @@ export interface components {
              * @default true
              */
             sourceAvailable: boolean;
+        };
+        /** TenantConfig */
+        TenantConfig: {
+            /**
+             * Actionsperhour
+             * @default 1000
+             */
+            actionsPerHour: number;
+            /** Alloweddomains */
+            allowedDomains?: ("Marketing" | "Advertising" | "Sales" | "Commerce" | "Service")[];
+            /** Allowedpurposes */
+            allowedPurposes?: ("cart_recovery" | "lead_qualification" | "audience_activation" | "commerce_personalization" | "service_recovery")[];
+            /**
+             * Brand
+             * @default demo-brand
+             */
+            brand: string;
+            /**
+             * Contacthours
+             * @default 24
+             */
+            contactHours: number;
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
+            /**
+             * Holdoutfraction
+             * @default 0.2
+             */
+            holdoutFraction: number;
+            /**
+             * Maxpending
+             * @default 1000
+             */
+            maxPending: number;
+            /**
+             * Policyversion
+             * @default enterprise-policy-v1
+             */
+            policyVersion: string;
+            /**
+             * Region
+             * @enum {string}
+             */
+            region: "us-east-1" | "eu-west-1" | "ap-southeast-2";
+            /** Requireapproval */
+            requireApproval?: ("Marketing" | "Advertising" | "Sales" | "Commerce" | "Service")[];
+            /**
+             * Signalsperminute
+             * @default 1000
+             */
+            signalsPerMinute: number;
+            /**
+             * Simulationenabled
+             * @default false
+             */
+            simulationEnabled: boolean;
+            /** Tenantid */
+            tenantId: string;
         };
         /** ValidationError */
         ValidationError: {
@@ -1240,6 +1816,547 @@ export interface operations {
             header?: never;
             path: {
                 workflow_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    budget_draft_v2_advertising_budget_drafts_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BudgetDraft"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    audit_v2_audit_export_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    connectors_v2_connectors_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    ingest_v2_events_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SignalEvent"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    identity_binding_v2_identity_bindings_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IdentityBinding"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    operations_v2_operations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    fixture_v2_simulation_context_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerContext"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    demo_v2_simulation_demo_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    tenant_v2_tenant_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    provision_v2_tenants_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TenantConfig"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    shopify_order_v2_webhooks_shopify_orders_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    workflows_v2_workflows_get: {
+        parameters: {
+            query?: {
+                cursor?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    workflow_v2_workflows__wid__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                wid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_v2_workflows__wid__approval_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                wid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApprovalDecision"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_v2_workflows__wid__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                wid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    execute_v2_workflows__wid__execute_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                wid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    plan_v2_workflows__wid__plan_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                wid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    replay_v2_workflows__wid__replay_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                wid: string;
             };
             cookie?: never;
         };

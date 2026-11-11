@@ -7,15 +7,16 @@ from typing import Any
 from confluent_kafka import Consumer, Producer
 from pydantic import ValidationError
 from sqlalchemy import select
-from temporalio.client import Client
 from temporalio.exceptions import WorkflowAlreadyStartedError
 
+from growth.broker import configuration
 from growth.config import settings
 from growth.contracts import Event
 from growth.db import Row, Tenant, engine, transaction
 from growth.engine import DomainError, GrowthEngine
 from growth.policy import Policy
 from growth.temporal_worker import TASK_QUEUE, CartRecoveryWorkflow
+from growth.workflow_client import connect
 
 logger = logging.getLogger("growth.events")
 TOPICS = ["commerce.cart_abandoned.v1", "commerce.order_placed.v1", "service.case_escalated.v1"]
@@ -58,10 +59,10 @@ async def main() -> None:
         engine(config.vendor_database_url),
         Policy.load(config.policy_path),
     )
-    client = await Client.connect(config.temporal_address, namespace=config.temporal_namespace)
+    client = await connect(config)
     producer = Producer(
         {
-            "bootstrap.servers": config.kafka_servers,
+            **configuration(config),
             "enable.idempotence": True,
             "delivery.timeout.ms": 10000,
             "request.timeout.ms": 5000,
@@ -69,7 +70,7 @@ async def main() -> None:
     )
     consumer = Consumer(
         {
-            "bootstrap.servers": config.kafka_servers,
+            **configuration(config),
             "group.id": "growth-cart-recovery-v1",
             "enable.auto.commit": False,
             "auto.offset.reset": "earliest",

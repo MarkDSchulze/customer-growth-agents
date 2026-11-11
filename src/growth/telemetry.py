@@ -13,6 +13,7 @@ class JsonFormatter(logging.Formatter):
         for key in (
             "correlationId",
             "tenantId",
+            "region",
             "workflowId",
             "policyVersion",
             "purpose",

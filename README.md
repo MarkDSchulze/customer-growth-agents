@@ -1,81 +1,85 @@
 # Customer Growth Agents
 
-A runnable, vendor-neutral customer growth orchestration reference implementation with five bounded domain agents: **Marketing, Advertising, Sales, Commerce and Service**.
+A vendor-neutral, governed multi-agent system spanning **Marketing, Advertising, Sales, Commerce and Service**, with an AWS deployment foundation and pluggable Salesforce, Adobe Experience Platform and Shopify connectors.
 
-The first working journey is **service-aware cart recovery**. An authenticated cart signal enters a durable workflow, domain planners propose structured actions, deterministic policies decide eligibility, and a gateway activates one approved **mock** marketing journey or records suppression/holdout. The operator console shows decisions, correlated audit, experiment cohorts, replay and emergency controls.
+Version 0.2 adds normalized regional workflows, five domain tools, a portfolio console, tenant identity bindings, optional model advice, sandbox connectors, immutable audit export and deployment automation. The original `/v1` service-aware cart recovery contracts remain supported. The implementation is runnable and tested with synthetic data; account-specific sandbox acceptance, production load, recovery and business approvals remain release gates.
 
-**Current release: synthetic MVP, not an enterprise-certified production deployment.** Sales and Advertising expose recommendation boundaries; their vendor mutations, live messaging, media spend, pricing and discounts are not implemented. No paid AI keys or customer data are needed. Enterprise scale and release gates are tracked in [delivery/NFR-and-tests.md](delivery/NFR-and-tests.md).
+![Operator console](docs/console.png)
 
-![Synthetic operator console](docs/console.png)
+## Run
 
-## Run the complete local stack
-
-Requires Python 3.12+, [uv](https://docs.astral.sh/uv/), Node.js 24, Docker Engine and Compose v2. Allow at least 12 GB of free disk for image/build layers; Docker's vfs storage driver can require more.
+Requires Python 3.12+, [uv](https://docs.astral.sh/uv/), Node.js 24, Docker Engine and Compose v2. Allow at least 12 GB free disk; Docker vfs can require more.
 
 ```bash
-make setup     # frozen Python/npm dependencies and private generated local configuration
-make dev       # PostgreSQL, Kafka, Temporal, API, workers and Next.js console
-make token     # print a short-lived local admin token
+make setup     # frozen dependencies and private local configuration
+make dev       # PostgreSQL, Kafka, Temporal, API, regional worker, sandbox and console
+make token     # short-lived development admin token
 ```
 
-Open **http://localhost:3000**, enter the token and select **Run synthetic demo**. The eight synthetic carts demonstrate eligible treatment, service/consent/stock suppression and holdout. Inspect a journey for all five agent proposals; open Governance to pause/resume the tenant. API documentation is at http://localhost:8000/docs and Temporal UI at http://localhost:8233.
+Open **http://localhost:3000**, enter the token, open **Enterprise workflows**, and run the all-domain demo. Inspect the five agent reports, approve the Advertising audience action, and view connector capabilities. The seven scenarios cover all five tools, service suppression and opt-out. The original cart recovery demo remains available from Overview. API docs: http://localhost:8000/docs. Temporal UI: http://localhost:8233.
 
-The default is observe-only. The demo explicitly enables mock receipts for its authenticated tenant. This cannot activate a real vendor. Tokens stay in browser memory and expire after two hours. `make down` stops services while preserving database, broker and workflow volumes. `make demo` is a CLI alternative to the console demo.
+Local demos explicitly enable simulated execution for their tenant. They never contact Salesforce, Adobe or Shopify. Tokens stay in browser memory. `make down` preserves volumes. A smaller developer runner uses SQLite: `make setup`, `make local`, and `npm run dev --prefix apps/growth-console` in another terminal. Use Compose for durable execution.
 
-For a smaller local runner, run `make setup`, `make local`, then `npm run dev` in `apps/growth-console` in another terminal. It uses SQLite and synchronous execution for developer testing; use Docker/Temporal for durable processing.
+For inspecting HTTPS proxies, use the trusted public CA build secret in [deployment/compose.proxy-build.yaml](deployment/compose.proxy-build.yaml).
 
-For managed environments with an inspecting HTTPS proxy, pass the trusted public CA as a build secret using [deployment/compose.proxy-build.yaml](deployment/compose.proxy-build.yaml). Do not disable TLS verification.
+## Domain workflows
 
-## Implemented behavior
+| Signal | Governed tools |
+|---|---|
+| Cart abandoned | Approved Marketing journey and Commerce recommendation |
+| Lead submitted | Qualified Sales follow-up task and approved nurture journey |
+| Audience requested | Approved Advertising audience membership; human approval required by default |
+| Product interest | Eligible Commerce recommendation and qualified Sales task |
+| Service risk | Internal Service recovery task; severe cases suppress promotion |
+| Case resolved | Service follow-up and approved retention journey |
 
-- Strict versioned event/API DTOs; tenant derived from signed JWT/OIDC claims, not request bodies; role, purpose and region checks.
-- Marketing, Advertising, Sales, Commerce and Service agents return schema-validated proposals. A deterministic baseline works without an LLM. Only the approved recovery journey can cause a mock write.
-- Current identity, purpose, consent, severe service case, order, inventory, price freshness, frequency, cohort, optional human approval and emergency switch checks immediately before activation.
-- PostgreSQL RLS with a NOSUPERUSER/NOBYPASSRLS app role, tenant transaction locks and append-only audit permissions/trigger.
-- Transactional ingest/outbox, Kafka replay, stable Temporal workflow IDs, bounded safe retries, independent vendor idempotency/status lookup, ambiguous-result review and operator DLQ replay.
-- Stable treatment/control assignment, confirmed mock exposure, customer-level conversion windows, currency-separated attributed revenue and conservative uncertainty intervals. Attributed revenue is never labeled incremental revenue.
-- Responsive operator console with keyboard dialogs, protected proxy routes, authentication, trace inspection, search, audit and tenant kill switch.
-- Health/readiness endpoints, redacted structured request logs, Prometheus metrics and reference scrape/alert configuration.
+Service and Commerce assess constraints before the other planners. Optional model advice receives bounded boolean/numeric facts and produces schema-validated recommendations; deterministic policy controls every tool. No model grants eligibility, modifies budgets, sets prices, invents discounts or sends free-form messages. Advertising budget drafts are descriptive and have no execution endpoint.
 
-## Validate
+Before effects, the gateway rechecks current identity version, purpose, consent, severe service cases, orders, inventory, entitlements, price freshness, contact frequency, policy version, approval and tenant/global switches. Ambiguous acknowledgements reconcile authoritative receipts. Audit chains, idempotency keys, transactional outbox and stable Temporal workflow generations survive retries and replay.
+
+## Enterprise integrations
+
+| Provider | Implemented boundary |
+|---|---|
+| AWS | Terraform for private regional EKS, multi-AZ encrypted PostgreSQL, IAM-authenticated MSK Serverless, KMS, Secrets Manager and immutable S3 audit storage; Helm API/worker replicas, HPA, disruption budgets, security contexts and network policy |
+| Salesforce | Sandbox Contact/Case/Task context; optional idempotent internal Task upsert using a verified unique external-ID field; no pipeline stage mutation |
+| Adobe Experience Platform | Named non-production sandbox profile, explicit purpose and consent mappings; activation uses an approved idempotent HTTP bridge, not an invented native delivery guarantee |
+| Shopify | Read-only customer/order/inventory/product GraphQL context and authenticated order webhook; no pricing, discount or order mutation |
+| Model provider | Optional HTTPS OpenAI-compatible JSON advice with host/region binding, time/size/token limits and deterministic fallback |
+
+Configure credentials server-side in an approved vault. Customer identity bindings have a separate tenant-scoped database lifecycle. See [connector setup](delivery/CONNECTORS.md), [AWS deployment](infrastructure/aws/README.md), and [operator runbook](delivery/RUNBOOK.md). No AWS resources or real customer actions are deployed by repository setup or CI.
+
+## Verify
 
 ```bash
-make lint                  # Python formatting/lint/types, API drift, TS, ESLint, AsyncAPI parser
-make test                  # policy, API, adapter, concurrency and recovery tests
-make test-e2e              # synthetic journeys and race scenarios
-make security              # source secret check, Bandit, Python and npm runtime audits
-# Infrastructure must be running:
+make lint test test-e2e security
+# With infrastructure running:
 docker compose up -d postgres temporal broker
-make test-integration      # real PostgreSQL RLS, Kafka→Temporal and worker restart
-# Browser test (after setup):
-cd apps/growth-console
-npm run build
-npx playwright install chromium
-npm test
+make test-integration
+# Complete synthetic stack:
+uv run python scripts/smoke_stack.py
+uv run python scripts/load_test.py --requests 100 --concurrency 8
+# Deployment templates, requires Terraform 1.13.4 and Helm 3.19:
+make infrastructure
+# Browser, requires Chromium:
+npm run build --prefix apps/growth-console
+PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm test --prefix apps/growth-console
 ```
 
-[GitHub Actions](.github/workflows/ci.yml) runs quality/security, durable-stack and browser jobs. CI results are separate from the locally executed evidence in [delivery/IMPLEMENTATION_STATUS.md](delivery/IMPLEMENTATION_STATUS.md). In managed environments with a preinstalled browser, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium`.
+[CI](.github/workflows/ci.yml) runs quality/security, browser, PostgreSQL/Kafka/Temporal, infrastructure validation and complete-container/load jobs, retaining execution artifacts. [Implementation status](delivery/IMPLEMENTATION_STATUS.md) distinguishes executed evidence from remaining release gates.
 
-## Repository map
+## Repository
 
 | Path | Purpose |
 |---|---|
-| `src/growth/api.py`, `auth.py` | Authenticated operator/producer API and tenant claims |
-| `src/growth/engine.py` | Transactional decisions, gateway, lifecycle and measurement |
-| `src/growth/agents.py`, `policy.py` | Five bounded planners and deterministic eligibility |
-| `src/growth/adapters.py` | Typed adapter protocols and independent synthetic authority |
-| `src/growth/temporal_worker.py`, `event_worker.py` | Durable execution, broker consumer and outbox dispatcher |
-| `apps/growth-console/` | Next.js/React/TypeScript operator console |
-| `contracts/`, `packages/contracts/` | OpenAPI 3.1, AsyncAPI 3.0, event JSON Schema, generated TS |
-| `schemas/`, `scripts/migrate.py` | Additive migration, RLS and audit protection |
-| `tests/` | Unit/API/event/E2E and real-infrastructure tests |
-| `workflows/agent-policies.yaml` | Versioned approved journey, experiment, caps and retries |
-| `deployment/`, `delivery/` | Reference deployment, runbook, acceptance map and backlog |
+| `src/growth/enterprise/` | Regional typed core, planners, deterministic gateway, normalized state, worker, sandbox, budgets and audit archive |
+| `src/growth/connectors/` | Vendor adapters, credential templates and tenant identity resolution |
+| `src/growth/engine.py`, `agents.py`, `policy.py` | Compatible v1 recovery workflow and experiment reporting |
+| `src/growth/auth.py`, `observability.py`, `broker.py` | Verified claims, redacted tracing and TLS/IAM clients |
+| `apps/growth-console/` | Responsive TypeScript operator console |
+| `contracts/`, `packages/contracts/` | Versioned OpenAPI/AsyncAPI/JSON Schema and generated TypeScript |
+| `schemas/`, `scripts/migrate.py` | Additive migrations, forced RLS, immutable audit and indexes |
+| `deployment/helm/`, `infrastructure/aws/` | Regional deployment foundation |
+| `tests/`, `delivery/` | Verification, operating procedures and acceptance evidence |
 
-The supplied [PRD](PRD.md), [architecture](ARCHITECTURE.md), [data model](DATA_MODEL.md), [implementation plan](IMPLEMENTATION_PLAN.md) and [repository guidance](AGENTS.md) remain design context. [ADR-007](architecture/adr/007-local-reference-runtime.md) documents the implemented compact storage/runtime choices and the difference between this mock MVP and the proposed enterprise target.
-
-## Extend safely
-
-Replace a typed mock adapter with one approved sandbox connector, retaining the synthetic contract tests. The connector must support tenant-scoped credentials, source freshness, stable idempotency and authoritative status reconciliation. Configure approved OIDC issuer/audience/JWKS and verified human identity claims; the local token minting path is development only. Enterprise broker ACLs, immutable audit archiving, data retention/residency, HA topology and measured SLOs require explicit implementation and validation before a real pilot.
-
-Operational procedures, rollback and failure recovery are in [delivery/RUNBOOK.md](delivery/RUNBOOK.md).
+The supplied [PRD](PRD.md), [architecture](ARCHITECTURE.md), [data model](DATA_MODEL.md), [implementation plan](IMPLEMENTATION_PLAN.md) and [repository guidance](AGENTS.md) remain design context. [ADR-008](architecture/adr/008-regional-enterprise-core.md) describes this implementation and its production boundaries.
