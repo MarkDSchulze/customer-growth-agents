@@ -1,0 +1,1704 @@
+components:
+  schemas:
+    ActionIntent:
+      additionalProperties: false
+      properties:
+        journeyId:
+          default: cart-recovery-v1
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Journeyid
+          type: string
+        purpose:
+          const: cart_recovery
+          default: cart_recovery
+          title: Purpose
+          type: string
+        tool:
+          const: trigger_approved_journey
+          default: trigger_approved_journey
+          title: Tool
+          type: string
+        workflowId:
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Workflowid
+          type: string
+      required:
+      - workflowId
+      title: ActionIntent
+      type: object
+    ApprovalCommand:
+      additionalProperties: false
+      properties:
+        decision:
+          enum:
+          - approved
+          - rejected
+          title: Decision
+          type: string
+      required:
+      - decision
+      title: ApprovalCommand
+      type: object
+    ApprovalDecision:
+      additionalProperties: false
+      properties:
+        decision:
+          enum:
+          - approved
+          - rejected
+          title: Decision
+          type: string
+        planHash:
+          title: Planhash
+          type: string
+      required:
+      - decision
+      - planHash
+      title: ApprovalDecision
+      type: object
+    BudgetDraft:
+      additionalProperties: false
+      properties:
+        channels:
+          items:
+            $ref: '#/components/schemas/ChannelEvidence'
+          maxItems: 3
+          minItems: 1
+          title: Channels
+          type: array
+        currency:
+          pattern: ^[A-Z]{3}$
+          title: Currency
+          type: string
+        observations:
+          maximum: 100000000.0
+          minimum: 0.0
+          title: Observations
+          type: integer
+        totalBudget:
+          maximum: 1000000.0
+          minimum: 0.0
+          title: Totalbudget
+          type: number
+      required:
+      - currency
+      - totalBudget
+      - observations
+      - channels
+      title: BudgetDraft
+      type: object
+    ChannelEvidence:
+      additionalProperties: false
+      properties:
+        channel:
+          enum:
+          - paid_search
+          - paid_social
+          - display
+          title: Channel
+          type: string
+        contribution:
+          maximum: 100000000.0
+          minimum: 0.0
+          title: Contribution
+          type: number
+        conversions:
+          maximum: 10000000.0
+          minimum: 0.0
+          title: Conversions
+          type: integer
+        spend:
+          maximum: 100000000.0
+          minimum: 0.0
+          title: Spend
+          type: number
+      required:
+      - channel
+      - spend
+      - conversions
+      - contribution
+      title: ChannelEvidence
+      type: object
+    CustomerContext:
+      additionalProperties: false
+      properties:
+        accountTier:
+          default: self_service
+          enum:
+          - strategic
+          - self_service
+          title: Accounttier
+          type: string
+        advertisingConsent:
+          default: false
+          title: Advertisingconsent
+          type: boolean
+        audienceRef:
+          const: approved-growth-audience-v1
+          default: approved-growth-audience-v1
+          title: Audienceref
+          type: string
+        customerRef:
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Customerref
+          type: string
+        emailConsent:
+          default: false
+          title: Emailconsent
+          type: boolean
+        engagement:
+          default: 0
+          maximum: 100.0
+          minimum: 0.0
+          title: Engagement
+          type: integer
+        identityKnown:
+          default: true
+          title: Identityknown
+          type: boolean
+        identityVersion:
+          default: synthetic-v1
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Identityversion
+          type: string
+        leadFit:
+          default: 0
+          maximum: 100.0
+          minimum: 0.0
+          title: Leadfit
+          type: integer
+        observedAt:
+          format: date-time
+          title: Observedat
+          type: string
+        ordered:
+          default: false
+          title: Ordered
+          type: boolean
+        products:
+          items:
+            $ref: '#/components/schemas/Product'
+          maxItems: 50
+          title: Products
+          type: array
+        purposeAllowed:
+          items:
+            enum:
+            - cart_recovery
+            - lead_qualification
+            - audience_activation
+            - commerce_personalization
+            - service_recovery
+            type: string
+          title: Purposeallowed
+          type: array
+        region:
+          enum:
+          - us-east-1
+          - eu-west-1
+          - ap-southeast-2
+          title: Region
+          type: string
+        sellerTaskExists:
+          default: false
+          title: Sellertaskexists
+          type: boolean
+        serviceRecovered:
+          default: false
+          title: Servicerecovered
+          type: boolean
+        severeCase:
+          default: false
+          title: Severecase
+          type: boolean
+        sourceAvailable:
+          default: true
+          title: Sourceavailable
+          type: boolean
+      required:
+      - customerRef
+      - region
+      - observedAt
+      title: CustomerContext
+      type: object
+    DecisionRequest:
+      additionalProperties: false
+      properties:
+        purpose:
+          const: cart_recovery
+          default: cart_recovery
+          title: Purpose
+          type: string
+        workflowId:
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Workflowid
+          type: string
+      required:
+      - workflowId
+      title: DecisionRequest
+      type: object
+    Event:
+      additionalProperties: false
+      properties:
+        aggregateId:
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Aggregateid
+          type: string
+        correlationId:
+          format: uuid
+          title: Correlationid
+          type: string
+        data:
+          additionalProperties: true
+          title: Data
+          type: object
+        eventId:
+          format: uuid
+          title: Eventid
+          type: string
+        eventType:
+          enum:
+          - commerce.cart_abandoned.v1
+          - commerce.order_placed.v1
+          - service.case_escalated.v1
+          - growth.action_executed.v1
+          title: Eventtype
+          type: string
+        occurredAt:
+          format: date-time
+          title: Occurredat
+          type: string
+        region:
+          const: us-east-1
+          default: us-east-1
+          title: Region
+          type: string
+        schemaVersion:
+          const: 1.0.0
+          default: 1.0.0
+          title: Schemaversion
+          type: string
+        source:
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Source
+          type: string
+        tenantId:
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Tenantid
+          type: string
+      required:
+      - eventId
+      - eventType
+      - tenantId
+      - aggregateId
+      - occurredAt
+      - correlationId
+      - source
+      - data
+      title: Event
+      type: object
+    FaultCommand:
+      additionalProperties: false
+      properties:
+        mode:
+          enum:
+          - healthy
+          - timeout_after_accept
+          - unavailable
+          - permanent
+          - unknown_status
+          title: Mode
+          type: string
+      required:
+      - mode
+      title: FaultCommand
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    IdentityBinding:
+      additionalProperties: false
+      properties:
+        adobeProfile:
+          pattern: ^[A-Za-z0-9_.:-]{1,96}$
+          title: Adobeprofile
+          type: string
+        customerRef:
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Customerref
+          type: string
+        region:
+          enum:
+          - us-east-1
+          - eu-west-1
+          - ap-southeast-2
+          title: Region
+          type: string
+        salesforceContact:
+          pattern: ^[A-Za-z0-9]{15}(?:[A-Za-z0-9]{3})?$
+          title: Salesforcecontact
+          type: string
+        shopifyCustomer:
+          pattern: ^gid://shopify/Customer/[0-9]+$
+          title: Shopifycustomer
+          type: string
+        shopifyVariants:
+          items:
+            type: string
+          maxItems: 50
+          title: Shopifyvariants
+          type: array
+      required:
+      - customerRef
+      - region
+      - salesforceContact
+      - adobeProfile
+      - shopifyCustomer
+      title: IdentityBinding
+      type: object
+    KillCommand:
+      additionalProperties: false
+      properties:
+        enabled:
+          title: Enabled
+          type: boolean
+      required:
+      - enabled
+      title: KillCommand
+      type: object
+    Product:
+      additionalProperties: false
+      properties:
+        currency:
+          default: USD
+          pattern: ^[A-Z]{3}$
+          title: Currency
+          type: string
+        entitled:
+          default: true
+          title: Entitled
+          type: boolean
+        inStock:
+          title: Instock
+          type: boolean
+        priceCurrent:
+          default: true
+          title: Pricecurrent
+          type: boolean
+        productRef:
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Productref
+          type: string
+      required:
+      - productRef
+      - inStock
+      title: Product
+      type: object
+    SignalEvent:
+      additionalProperties: false
+      properties:
+        aggregateId:
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Aggregateid
+          type: string
+        correlationId:
+          format: uuid
+          title: Correlationid
+          type: string
+        customerRef:
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Customerref
+          type: string
+        eventId:
+          format: uuid
+          title: Eventid
+          type: string
+        eventType:
+          const: growth.signal.v2
+          default: growth.signal.v2
+          title: Eventtype
+          type: string
+        occurredAt:
+          format: date-time
+          title: Occurredat
+          type: string
+        region:
+          enum:
+          - us-east-1
+          - eu-west-1
+          - ap-southeast-2
+          title: Region
+          type: string
+        schemaVersion:
+          const: 2.0.0
+          default: 2.0.0
+          title: Schemaversion
+          type: string
+        signal:
+          enum:
+          - cart_abandoned
+          - lead_submitted
+          - audience_requested
+          - product_interest
+          - service_risk
+          - case_resolved
+          title: Signal
+          type: string
+        source:
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Source
+          type: string
+        tenantId:
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Tenantid
+          type: string
+      required:
+      - eventId
+      - tenantId
+      - region
+      - aggregateId
+      - customerRef
+      - signal
+      - occurredAt
+      - correlationId
+      - source
+      title: SignalEvent
+      type: object
+    Snapshot:
+      additionalProperties: false
+      properties:
+        cartId:
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Cartid
+          type: string
+        channel:
+          const: email
+          default: email
+          title: Channel
+          type: string
+        consent:
+          default: true
+          title: Consent
+          type: boolean
+        customerRef:
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Customerref
+          type: string
+        identityKnown:
+          default: true
+          title: Identityknown
+          type: boolean
+        inStock:
+          default: true
+          title: Instock
+          type: boolean
+        ordered:
+          default: false
+          title: Ordered
+          type: boolean
+        priceCurrent:
+          default: true
+          title: Pricecurrent
+          type: boolean
+        purposeAllowed:
+          default: true
+          title: Purposeallowed
+          type: boolean
+        severeCase:
+          default: false
+          title: Severecase
+          type: boolean
+        sourceAvailable:
+          default: true
+          title: Sourceavailable
+          type: boolean
+      required:
+      - customerRef
+      - cartId
+      title: Snapshot
+      type: object
+    TenantConfig:
+      additionalProperties: false
+      properties:
+        actionsPerHour:
+          default: 1000
+          maximum: 1000000.0
+          minimum: 1.0
+          title: Actionsperhour
+          type: integer
+        allowedDomains:
+          items:
+            enum:
+            - Marketing
+            - Advertising
+            - Sales
+            - Commerce
+            - Service
+            type: string
+          title: Alloweddomains
+          type: array
+        allowedPurposes:
+          items:
+            enum:
+            - cart_recovery
+            - lead_qualification
+            - audience_activation
+            - commerce_personalization
+            - service_recovery
+            type: string
+          title: Allowedpurposes
+          type: array
+        brand:
+          default: demo-brand
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Brand
+          type: string
+        contactHours:
+          default: 24
+          maximum: 720.0
+          minimum: 1.0
+          title: Contacthours
+          type: integer
+        enabled:
+          default: true
+          title: Enabled
+          type: boolean
+        holdoutFraction:
+          default: 0.2
+          maximum: 1.0
+          minimum: 0.0
+          title: Holdoutfraction
+          type: number
+        maxPending:
+          default: 1000
+          maximum: 100000.0
+          minimum: 1.0
+          title: Maxpending
+          type: integer
+        policyVersion:
+          default: enterprise-policy-v1
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Policyversion
+          type: string
+        region:
+          enum:
+          - us-east-1
+          - eu-west-1
+          - ap-southeast-2
+          title: Region
+          type: string
+        requireApproval:
+          items:
+            enum:
+            - Marketing
+            - Advertising
+            - Sales
+            - Commerce
+            - Service
+            type: string
+          title: Requireapproval
+          type: array
+        signalsPerMinute:
+          default: 1000
+          maximum: 100000.0
+          minimum: 1.0
+          title: Signalsperminute
+          type: integer
+        simulationEnabled:
+          default: false
+          title: Simulationenabled
+          type: boolean
+        tenantId:
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$
+          title: Tenantid
+          type: string
+      required:
+      - tenantId
+      - region
+      title: TenantConfig
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+  securitySchemes:
+    HTTPBearer:
+      scheme: bearer
+      type: http
+info:
+  title: Customer Growth Agents
+  version: 1.0.0
+openapi: 3.1.0
+paths:
+  /healthz:
+    get:
+      operationId: health_healthz_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                title: Response Health Healthz Get
+                type: object
+          description: Successful Response
+      summary: Health
+  /metrics:
+    get:
+      operationId: metrics_metrics_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      security:
+      - HTTPBearer: []
+      summary: Metrics
+  /readyz:
+    get:
+      operationId: ready_readyz_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                title: Response Ready Readyz Get
+                type: object
+          description: Successful Response
+      summary: Ready
+  /v1/actions:
+    post:
+      operationId: act_v1_actions_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActionIntent'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Act V1 Actions Post
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Act
+  /v1/actions/{workflow_id}:
+    get:
+      operationId: action_v1_actions__workflow_id__get
+      parameters:
+      - in: path
+        name: workflow_id
+        required: true
+        schema:
+          title: Workflow Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Action V1 Actions  Workflow Id  Get
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Action
+  /v1/approvals/{workflow_id}/decisions:
+    post:
+      operationId: approval_v1_approvals__workflow_id__decisions_post
+      parameters:
+      - in: path
+        name: workflow_id
+        required: true
+        schema:
+          title: Workflow Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalCommand'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Approval V1 Approvals  Workflow Id  Decisions Post
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Approval
+  /v1/audit:
+    get:
+      operationId: audit_v1_audit_get
+      parameters:
+      - in: query
+        name: correlationId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Correlationid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  additionalProperties: true
+                  type: object
+                title: Response Audit V1 Audit Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Audit
+  /v1/control/global-kill-switch:
+    put:
+      operationId: global_kill_v1_control_global_kill_switch_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KillCommand'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: boolean
+                title: Response Global Kill V1 Control Global Kill Switch Put
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Global Kill
+  /v1/control/kill-switch:
+    put:
+      operationId: kill_v1_control_kill_switch_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KillCommand'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: boolean
+                title: Response Kill V1 Control Kill Switch Put
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Kill
+  /v1/customers/{customer_id}/context:
+    get:
+      operationId: context_v1_customers__customer_id__context_get
+      parameters:
+      - in: path
+        name: customer_id
+        required: true
+        schema:
+          title: Customer Id
+          type: string
+      - in: query
+        name: cartId
+        required: true
+        schema:
+          title: Cartid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Context V1 Customers  Customer Id  Context Get
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Context
+  /v1/decisions:
+    post:
+      operationId: decide_v1_decisions_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecisionRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Decide V1 Decisions Post
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Decide
+  /v1/decisions/{workflow_id}:
+    get:
+      operationId: decision_v1_decisions__workflow_id__get
+      parameters:
+      - in: path
+        name: workflow_id
+        required: true
+        schema:
+          title: Workflow Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Decision V1 Decisions  Workflow Id  Get
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Decision
+  /v1/dlq:
+    get:
+      operationId: dlq_v1_dlq_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  additionalProperties: true
+                  type: object
+                title: Response Dlq V1 Dlq Get
+                type: array
+          description: Successful Response
+      security:
+      - HTTPBearer: []
+      summary: Dlq
+  /v1/events:
+    post:
+      operationId: ingest_v1_events_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Ingest V1 Events Post
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Ingest
+  /v1/experiments/report:
+    get:
+      operationId: report_v1_experiments_report_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Report V1 Experiments Report Get
+                type: object
+          description: Successful Response
+      security:
+      - HTTPBearer: []
+      summary: Report
+  /v1/simulation/context:
+    put:
+      operationId: mock_context_v1_simulation_context_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Snapshot'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                title: Response Mock Context V1 Simulation Context Put
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Mock Context
+  /v1/simulation/enable:
+    post:
+      operationId: simulation_v1_simulation_enable_post
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                title: Response Simulation V1 Simulation Enable Post
+                type: object
+          description: Successful Response
+      security:
+      - HTTPBearer: []
+      summary: Simulation
+  /v1/simulation/vendor-fault:
+    put:
+      operationId: fault_v1_simulation_vendor_fault_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FaultCommand'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                title: Response Fault V1 Simulation Vendor Fault Put
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Fault
+  /v1/status:
+    get:
+      operationId: status_v1_status_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Status V1 Status Get
+                type: object
+          description: Successful Response
+      security:
+      - HTTPBearer: []
+      summary: Status
+  /v1/workflows:
+    get:
+      operationId: workflows_v1_workflows_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  additionalProperties: true
+                  type: object
+                title: Response Workflows V1 Workflows Get
+                type: array
+          description: Successful Response
+      security:
+      - HTTPBearer: []
+      summary: Workflows
+  /v1/workflows/{workflow_id}:
+    get:
+      operationId: workflow_v1_workflows__workflow_id__get
+      parameters:
+      - in: path
+        name: workflow_id
+        required: true
+        schema:
+          title: Workflow Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Workflow V1 Workflows  Workflow Id  Get
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Workflow
+  /v1/workflows/{workflow_id}/cancel:
+    post:
+      operationId: cancel_v1_workflows__workflow_id__cancel_post
+      parameters:
+      - in: path
+        name: workflow_id
+        required: true
+        schema:
+          title: Workflow Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Cancel V1 Workflows  Workflow Id  Cancel Post
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Cancel
+  /v1/workflows/{workflow_id}/replay:
+    post:
+      operationId: replay_v1_workflows__workflow_id__replay_post
+      parameters:
+      - in: path
+        name: workflow_id
+        required: true
+        schema:
+          title: Workflow Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Replay V1 Workflows  Workflow Id  Replay Post
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Replay
+  /v2/advertising/budget-drafts:
+    post:
+      operationId: budget_draft_v2_advertising_budget_drafts_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetDraft'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Budget Draft V2 Advertising Budget Drafts Post
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Budget Draft
+      tags:
+      - Enterprise orchestration
+  /v2/audit/export:
+    get:
+      operationId: audit_v2_audit_export_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      security:
+      - HTTPBearer: []
+      summary: Audit
+      tags:
+      - Enterprise orchestration
+  /v2/connectors:
+    get:
+      operationId: connectors_v2_connectors_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Connectors V2 Connectors Get
+                type: object
+          description: Successful Response
+      security:
+      - HTTPBearer: []
+      summary: Connectors
+      tags:
+      - Enterprise orchestration
+  /v2/events:
+    post:
+      operationId: ingest_v2_events_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignalEvent'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Ingest V2 Events Post
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Ingest
+      tags:
+      - Enterprise orchestration
+  /v2/identity-bindings:
+    put:
+      operationId: identity_binding_v2_identity_bindings_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentityBinding'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                title: Response Identity Binding V2 Identity Bindings Put
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Identity Binding
+      tags:
+      - Enterprise orchestration
+  /v2/operations:
+    get:
+      operationId: operations_v2_operations_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Operations V2 Operations Get
+                type: object
+          description: Successful Response
+      security:
+      - HTTPBearer: []
+      summary: Operations
+      tags:
+      - Enterprise orchestration
+  /v2/simulation/context:
+    put:
+      operationId: fixture_v2_simulation_context_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerContext'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                title: Response Fixture V2 Simulation Context Put
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Fixture
+      tags:
+      - Enterprise orchestration
+  /v2/simulation/demo:
+    post:
+      operationId: demo_v2_simulation_demo_post
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Demo V2 Simulation Demo Post
+                type: object
+          description: Successful Response
+      security:
+      - HTTPBearer: []
+      summary: Demo
+      tags:
+      - Enterprise orchestration
+  /v2/tenant:
+    get:
+      operationId: tenant_v2_tenant_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Tenant V2 Tenant Get
+                type: object
+          description: Successful Response
+      security:
+      - HTTPBearer: []
+      summary: Tenant
+      tags:
+      - Enterprise orchestration
+  /v2/tenants:
+    put:
+      operationId: provision_v2_tenants_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantConfig'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                title: Response Provision V2 Tenants Put
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Provision
+      tags:
+      - Enterprise orchestration
+  /v2/webhooks/shopify/orders:
+    post:
+      operationId: shopify_order_v2_webhooks_shopify_orders_post
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Shopify Order V2 Webhooks Shopify Orders Post
+                type: object
+          description: Successful Response
+      summary: Shopify Order
+      tags:
+      - Enterprise orchestration
+  /v2/workflows:
+    get:
+      operationId: workflows_v2_workflows_get
+      parameters:
+      - in: query
+        name: cursor
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cursor
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: query
+        name: state
+        required: false
+        schema:
+          anyOf:
+          - pattern: ^(RECEIVED|PLANNED|EXECUTING|APPROVAL_PENDING|COMPLETED|SUPPRESSED|HOLDOUT|CANCELLED|EXPIRED|FAILED_REVIEW|DRY_RUN)$
+            type: string
+          - type: 'null'
+          title: State
+      - in: query
+        name: customer
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 96
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Customer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Workflows V2 Workflows Get
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Workflows
+      tags:
+      - Enterprise orchestration
+  /v2/workflows/{wid}:
+    get:
+      operationId: workflow_v2_workflows__wid__get
+      parameters:
+      - in: path
+        name: wid
+        required: true
+        schema:
+          title: Wid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Workflow V2 Workflows  Wid  Get
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Workflow
+      tags:
+      - Enterprise orchestration
+  /v2/workflows/{wid}/approval:
+    post:
+      operationId: approve_v2_workflows__wid__approval_post
+      parameters:
+      - in: path
+        name: wid
+        required: true
+        schema:
+          title: Wid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalDecision'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Approve V2 Workflows  Wid  Approval Post
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Approve
+      tags:
+      - Enterprise orchestration
+  /v2/workflows/{wid}/cancel:
+    post:
+      operationId: cancel_v2_workflows__wid__cancel_post
+      parameters:
+      - in: path
+        name: wid
+        required: true
+        schema:
+          title: Wid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Cancel V2 Workflows  Wid  Cancel Post
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Cancel
+      tags:
+      - Enterprise orchestration
+  /v2/workflows/{wid}/execute:
+    post:
+      operationId: execute_v2_workflows__wid__execute_post
+      parameters:
+      - in: path
+        name: wid
+        required: true
+        schema:
+          title: Wid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Execute V2 Workflows  Wid  Execute Post
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Execute
+      tags:
+      - Enterprise orchestration
+  /v2/workflows/{wid}/plan:
+    post:
+      operationId: plan_v2_workflows__wid__plan_post
+      parameters:
+      - in: path
+        name: wid
+        required: true
+        schema:
+          title: Wid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Plan V2 Workflows  Wid  Plan Post
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Plan
+      tags:
+      - Enterprise orchestration
+  /v2/workflows/{wid}/replay:
+    post:
+      operationId: replay_v2_workflows__wid__replay_post
+      parameters:
+      - in: path
+        name: wid
+        required: true
+        schema:
+          title: Wid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Replay V2 Workflows  Wid  Replay Post
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Replay
+      tags:
+      - Enterprise orchestration

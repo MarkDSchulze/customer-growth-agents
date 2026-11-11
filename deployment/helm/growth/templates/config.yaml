@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-runtime
+  labels: {app.kubernetes.io/part-of: customer-growth}
+data:
+  GROWTH_REGION: {{ .Values.region | quote }}
+  GROWTH_TEMPORAL_NAMESPACE: {{ .Values.temporalNamespace | default (printf "growth-%s" .Values.region) | quote }}
+  {{- range $key,$value := .Values.config }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.serviceAccount.name }}
+  {{- with .Values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+automountServiceAccountToken: false

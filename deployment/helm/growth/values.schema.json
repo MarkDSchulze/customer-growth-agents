@@ -1,0 +1,14 @@
+{
+  "$schema":"https://json-schema.org/draft-07/schema#",
+  "type":"object",
+  "required":["region","image","existingSecret","api","worker"],
+  "properties":{
+    "region":{"enum":["us-east-1","eu-west-1","ap-southeast-2"]},
+    "existingSecret":{"type":"string","minLength":1},
+    "image":{"type":"object","required":["repository","tag"],"properties":{"repository":{"type":"string","minLength":1},"tag":{"type":"string","pattern":"^[0-9]+\\.[0-9]+\\.[0-9]+(?:[-.][A-Za-z0-9.-]+)?$"}}},
+    "api":{"type":"object","properties":{"replicas":{"type":"integer","minimum":2}}},
+    "worker":{"type":"object","properties":{"replicas":{"type":"integer","minimum":2}}},
+    "autoscaling":{"type":"object","properties":{"maxReplicas":{"type":"integer","minimum":3},"targetCPUUtilizationPercentage":{"type":"integer","minimum":10,"maximum":90}}},
+    "network":{"type":"object","properties":{"allowedEgressCIDRs":{"type":"array","items":{"type":"string","not":{"enum":["0.0.0.0/0","::/0"]}}}}}
+  }
+}

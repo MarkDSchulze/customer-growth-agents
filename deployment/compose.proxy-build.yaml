@@ -1,0 +1,15 @@
+# Optional: BUILD_CA_BUNDLE=/path/to/trusted/ca.pem docker compose -f compose.yaml -f deployment/compose.proxy-build.yaml build
+services:
+  migrate:
+    build: {context: ., secrets: [proxy_ca]}
+  api:
+    build: {context: ., secrets: [proxy_ca]}
+  workflow-worker:
+    build: {context: ., secrets: [proxy_ca]}
+  event-worker:
+    build: {context: ., secrets: [proxy_ca]}
+  console:
+    build: {context: ./apps/growth-console, secrets: [proxy_ca]}
+secrets:
+  proxy_ca:
+    file: ${BUILD_CA_BUNDLE:?set trusted public CA bundle path}

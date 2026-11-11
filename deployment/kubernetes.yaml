@@ -1,0 +1,25 @@
+# Illustrative only. Supply registry image, approved workload identity, TLS and external dependencies.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: growth-api
+  labels: {app: growth-api}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: growth-api}}
+  template:
+    metadata: {labels: {app: growth-api}}
+    spec:
+      automountServiceAccountToken: false
+      securityContext: {runAsNonRoot: true, runAsUser: 10001, seccompProfile: {type: RuntimeDefault}}
+      containers:
+        - name: api
+          image: example.invalid/replace-with-approved-registry/growth-api:0.1.0
+          ports: [{containerPort: 8000}]
+          envFrom: [{secretRef: {name: growth-runtime}}]
+          securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+          resources:
+            requests: {cpu: 250m, memory: 256Mi}
+            limits: {cpu: '1', memory: 512Mi}
+          readinessProbe: {httpGet: {path: /readyz, port: 8000}, initialDelaySeconds: 5}
+          livenessProbe: {httpGet: {path: /healthz, port: 8000}, initialDelaySeconds: 10}

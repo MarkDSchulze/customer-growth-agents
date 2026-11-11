@@ -1,0 +1,5 @@
+apiVersion: v2
+name: customer-growth
+version: 0.2.0
+appVersion: 0.2.0
+description: Regional customer-growth orchestration with governed enterprise connectors

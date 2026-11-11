@@ -1,108 +1,85 @@
-# Enterprise Customer Growth AI Agent System
+# Customer Growth Agents
 
-> **Status: Architecture and build-specification starter repository (documentation only).** No runnable application, production integrations, or automated tests have been implemented yet.
+A vendor-neutral, governed multi-agent system spanning **Marketing, Advertising, Sales, Commerce and Service**, with an AWS deployment foundation and pluggable Salesforce, Adobe Experience Platform and Shopify connectors.
 
-A vendor-neutral enterprise AI orchestration system for customer acquisition, sales conversion, digital commerce, marketing and advertising optimization, service-led retention, loyalty and revenue expansion. It sits **above** incumbent Sales CRM, Service CRM, MarTech, AdTech, E-Commerce, CDP, ERP/OMS, CMS and analytics systems, coordinating governed growth decisions without replacing those systems of record.
+Version 0.2 adds normalized regional workflows, five domain tools, a portfolio console, tenant identity bindings, optional model advice, sandbox connectors, immutable audit export and deployment automation. The original `/v1` service-aware cart recovery contracts remain supported. The implementation is runnable and tested with synthetic data; account-specific sandbox acceptance, production load, recovery and business approvals remain release gates.
 
-## What the platform will do
-1. Ingest enterprise customer signals (e.g. a cart-abandoned event or critical service case).
-2. Resolve consent- and purpose-scoped customer context across enterprise systems.
-3. Identify and rank eligible growth opportunities through deterministic policies and next-best-action decisioning.
-4. Delegate bounded planning to domain AI agents (Marketing, Sales, Commerce, Service).
-5. Execute approved actions through scoped vendor tool adapters and durable workflows, with idempotency, human review and audit logging.
-6. Measure incremental outcomes using treatment/control experiments and authoritative conversion events.
+![Operator console](docs/enterprise.png)
 
-**First MVP:** Service-aware cart recovery across mock commerce, customer identity/consent, Service CRM and marketing automation systems. Outbound sends require explicit consent and approved journey configuration; no uncontrolled budget/discount/pricing changes.
+## Run
 
-## Start here
-| Document | Purpose |
+Requires Python 3.12+, [uv](https://docs.astral.sh/uv/), Node.js 24, Docker Engine and Compose v2. Allow at least 12 GB free disk; Docker vfs can require more.
+
+```bash
+make setup     # frozen dependencies and private local configuration
+make dev       # PostgreSQL, Kafka, Temporal, API, regional worker, sandbox and console
+make token     # short-lived development admin token
+```
+
+Open **http://localhost:3000**, enter the token, open **Enterprise workflows**, and run the all-domain demo. Inspect the five agent reports, approve the Advertising audience action, and view connector capabilities. The seven scenarios cover all five tools, service suppression and opt-out. The original cart recovery demo remains available from Overview. API docs: http://localhost:8000/docs. Temporal UI: http://localhost:8233.
+
+Local demos explicitly enable simulated execution for their tenant. They never contact Salesforce, Adobe or Shopify. Tokens stay in browser memory. `make down` preserves volumes. A smaller developer runner uses SQLite: `make setup`, `make local`, and `npm run dev --prefix apps/growth-console` in another terminal. Use Compose for durable execution.
+
+For inspecting HTTPS proxies, use the trusted public CA build secret in [deployment/compose.proxy-build.yaml](deployment/compose.proxy-build.yaml).
+
+## Domain workflows
+
+| Signal | Governed tools |
 |---|---|
-| [PRD.md](PRD.md) | Product personas, problems, journeys, functional requirements, scope, acceptance criteria |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | L2/L3 architecture, reference stack, system components, APIs, orchestration, security |
-| [DATA_MODEL.md](DATA_MODEL.md) | Canonical identity and business entities, event/data contracts, schema and lineage |
-| [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) | Delivery phases, dependency graph, verification, MVP definition of done |
-| [AGENTS.md](AGENTS.md) | Codex/AI coding-agent and engineering repo instructions |
+| Cart abandoned | Approved Marketing journey and Commerce recommendation |
+| Lead submitted | Qualified Sales follow-up task and approved nurture journey |
+| Audience requested | Approved Advertising audience membership; human approval required by default |
+| Product interest | Eligible Commerce recommendation and qualified Sales task |
+| Service risk | Internal Service recovery task; severe cases suppress promotion |
+| Case resolved | Service follow-up and approved retention journey |
 
-### Additional existing technical specifications
+Service and Commerce assess constraints before the other planners. Optional model advice receives bounded boolean/numeric facts and produces schema-validated recommendations; deterministic policy controls every tool. No model grants eligibility, modifies budgets, sets prices, invents discounts or sends free-form messages. Advertising budget drafts are descriptive and have no execution endpoint.
+
+Before effects, the gateway rechecks current identity version, purpose, consent, severe service cases, orders, inventory, entitlements, price freshness, contact frequency, policy version, approval and tenant/global switches. Ambiguous acknowledgements reconcile authoritative receipts. Audit chains, idempotency keys, transactional outbox and stable Temporal workflow generations survive retries and replay.
+
+## Enterprise integrations
+
+| Provider | Implemented boundary |
+|---|---|
+| AWS | Terraform for private regional EKS, multi-AZ encrypted PostgreSQL, IAM-authenticated MSK Serverless, KMS, Secrets Manager and immutable S3 audit storage; Helm API/worker replicas, HPA, disruption budgets, security contexts and network policy |
+| Salesforce | Sandbox Contact/Case/Task context; optional idempotent internal Task upsert using a verified unique external-ID field; no pipeline stage mutation |
+| Adobe Experience Platform | Named non-production sandbox profile, explicit purpose and consent mappings; activation uses an approved idempotent HTTP bridge, not an invented native delivery guarantee |
+| Shopify | Read-only customer/order/inventory/product GraphQL context and authenticated order webhook; no pricing, discount or order mutation |
+| Model provider | Optional HTTPS OpenAI-compatible JSON advice with host/region binding, time/size/token limits and deterministic fallback |
+
+Configure credentials server-side in an approved vault. Customer identity bindings have a separate tenant-scoped database lifecycle. See [connector setup](delivery/CONNECTORS.md), [AWS deployment](infrastructure/aws/README.md), and [operator runbook](delivery/RUNBOOK.md). No AWS resources or real customer actions are deployed by repository setup or CI.
+
+## Verify
+
+```bash
+make lint test test-e2e security
+# With infrastructure running:
+docker compose up -d postgres temporal broker
+make test-integration
+# Complete synthetic stack:
+uv run python scripts/smoke_stack.py
+uv run python scripts/load_test.py --requests 100 --concurrency 8
+# Deployment templates, requires Terraform 1.13.4 and Helm 3.19:
+make infrastructure
+# Browser, requires Chromium:
+npm run build --prefix apps/growth-console
+PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm test --prefix apps/growth-console
+```
+
+[CI](.github/workflows/ci.yml) runs quality/security, browser, PostgreSQL/Kafka/Temporal, infrastructure validation and complete-container/load jobs, retaining execution artifacts. [Implementation status](delivery/IMPLEMENTATION_STATUS.md) distinguishes executed evidence from remaining release gates.
+
+## Repository
+
 | Path | Purpose |
 |---|---|
-| [architecture/L2-components.md](architecture/L2-components.md) | Detailed component topology and ownership matrix |
-| [architecture/L3-sequences.md](architecture/L3-sequences.md) | Cross-system journey diagrams and failure recovery |
-| [contracts/openapi.yaml](contracts/openapi.yaml) | Reference OpenAPI 3.1 synchronous interface |
-| [contracts/asyncapi.yaml](contracts/asyncapi.yaml) | Reference AsyncAPI 3.0 event topics and payloads |
-| [schemas/postgres.sql](schemas/postgres.sql) | Reference operational data DDL (requires hardening) |
-| [workflows/agent-policies.yaml](workflows/agent-policies.yaml) | Proposed permissions, eligibility and approval policies |
-| [deployment/kubernetes.yaml](deployment/kubernetes.yaml) | Illustrative Kubernetes manifest, **not** production-ready |
-| [delivery/backlog.csv](delivery/backlog.csv) | 18 prioritized implementation items |
-| [delivery/NFR-and-tests.md](delivery/NFR-and-tests.md) | Nonfunctional requirements, SLO targets and test matrix |
+| `src/growth/enterprise/` | Regional typed core, planners, deterministic gateway, normalized state, worker, sandbox, budgets and audit archive |
+| `src/growth/connectors/` | Vendor adapters, credential templates and tenant identity resolution |
+| `src/growth/engine.py`, `agents.py`, `policy.py` | Compatible v1 recovery workflow and experiment reporting |
+| `src/growth/auth.py`, `observability.py`, `broker.py` | Verified claims, redacted tracing and TLS/IAM clients |
+| `apps/growth-console/` | Responsive TypeScript operator console |
+| `contracts/`, `packages/contracts/` | Versioned OpenAPI/AsyncAPI/JSON Schema and generated TypeScript |
+| `schemas/`, `scripts/migrate.py` | Additive migrations, forced RLS, immutable audit and indexes |
+| `deployment/helm/`, `infrastructure/aws/` | Regional deployment foundation |
+| `tests/`, `delivery/` | Verification, operating procedures and acceptance evidence |
 
-## Proposed technology stack (not yet implemented)
-- **UI:** Next.js / React / TypeScript.
-- **Services:** Python, FastAPI, Pydantic.
-- **Workflow orchestration:** Temporal, with structured domain-agent services and an optional LLM model gateway.
-- **Decision engine:** deterministic eligibility/ranking baseline; calibrated ML/LLMs only after validated need.
-- **Integration/eventing:** Kafka-compatible event bus, schema registry, governed vendor tool adapters.
-- **Operational data:** PostgreSQL; optional Redis cache; enterprise CDP/warehouse remains external authority.
-- **Infrastructure:** local Docker Compose for development; Kubernetes/cloud managed services as enterprise deployment reference.
-- **Quality:** pytest, contract validation, integration and E2E fixtures, security scanning, telemetry.
-
-See [ARCHITECTURE.md](ARCHITECTURE.md) for alternatives and decision constraints.
-
-## Intended developer workflow
-**Today:** These are design artifacts, not a runnable codebase. Begin by reviewing PRD acceptance criteria and the target application/data assumptions, then follow [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) to create services and infrastructure.
-
-1. Read [AGENTS.md](AGENTS.md), [PRD.md](PRD.md), and [ARCHITECTURE.md](ARCHITECTURE.md).
-2. Review event/API schemas and safety policy; create or update contract tests before implementation.
-3. Implement Phase 1 developer skeleton, local services and fixtures.
-4. Implement the first vertical slice with synthetic cart/customer/case/order data and mock MarTech journey activation.
-5. Run lint/types/unit/contract/E2E, security and race/replay tests; keep source-of-truth rechecks at execution time.
-6. Propose changes via small PRs linking acceptance criteria; update ADRs, documentation, schemas and migrations together.
-
-**Planned developer commands (not yet available):**
-```bash
-make setup       # install tools and create local configuration
-make dev         # start synthetic local services
-make lint        # lint, type checks, contracts
-make test        # unit and component tests
-make test-e2e    # cross-system synthetic journeys
-make security    # scans and security-focused tests
-make down        # stop local dependencies
-```
-Do not run these commands expecting success until the Makefile and application code have been created in Phase 1.
-
-## Suggested future source layout
-```text
-enterprise-customer-growth-ai/
-├── apps/growth-console/              # operator UI (future)
-├── services/growth-api/              # HTTP interfaces (future)
-├── services/decision-service/        # deterministic NBA + models (future)
-├── services/policy-gateway/          # tools, consent, approvals (future)
-├── services/workflow-worker/         # Temporal orchestration (future)
-├── adapters/                         # mock and vendor adapters (future)
-├── packages/contracts/               # generated clients and types (future)
-├── tests/                            # unit/contract/E2E/chaos (future)
-├── architecture/                     # existing detailed L2/L3 design
-├── contracts/                        # existing OpenAPI/AsyncAPI
-├── schemas/                          # existing reference DDL
-├── workflows/                        # existing policy baseline
-├── deployment/                       # illustrative infra
-├── delivery/                         # NFRs and backlog
-├── PRD.md
-├── ARCHITECTURE.md
-├── DATA_MODEL.md
-├── IMPLEMENTATION_PLAN.md
-├── AGENTS.md
-└── README.md
-```
-
-## Trust and deployment posture
-This is a **reference build package**, not an enterprise-approved product. No live end-user messaging, CRM mutation, advertising spend, pricing changes, personal information ingestion or production credentials are authorized by this repository. All production tool scopes, legal bases, data residency, vendor permissions, human approvals, performance SLOs and retention policies require client review and explicit approval.
-
-## Suggested first engineering issue
-**CG-001: Initialize the local development and CI contract-validation skeleton.** Deliver an executable FastAPI health endpoint, PostgreSQL migration harness, Temporal dev runtime, Kafka-compatible broker, synthetic adapters, contract linting and one smoke test. Success: a new engineer can clone the repo and run a complete synthetic stack with documented commands, without paid API keys.
-
-## Project status / open decisions
-- Vendor-neutral baseline; no enterprise system provider selected.
-- Multi-region production topology is a proposal, not a deployment.
-- B2B sales and paid media workflows are post-MVP expansion tracks.
-- Business owner, marketing contact rules, experiment thresholds and production rollout policy must be defined with the target organization.
+The supplied [PRD](PRD.md), [architecture](ARCHITECTURE.md), [data model](DATA_MODEL.md), [implementation plan](IMPLEMENTATION_PLAN.md) and [repository guidance](AGENTS.md) remain design context. [ADR-008](architecture/adr/008-regional-enterprise-core.md) describes this implementation and its production boundaries.

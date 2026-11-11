@@ -1,0 +1,86 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "aggregateId": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+      "title": "Aggregateid",
+      "type": "string"
+    },
+    "correlationId": {
+      "format": "uuid",
+      "title": "Correlationid",
+      "type": "string"
+    },
+    "customerRef": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+      "title": "Customerref",
+      "type": "string"
+    },
+    "eventId": {
+      "format": "uuid",
+      "title": "Eventid",
+      "type": "string"
+    },
+    "eventType": {
+      "const": "growth.signal.v2",
+      "default": "growth.signal.v2",
+      "title": "Eventtype",
+      "type": "string"
+    },
+    "occurredAt": {
+      "format": "date-time",
+      "title": "Occurredat",
+      "type": "string"
+    },
+    "region": {
+      "enum": [
+        "us-east-1",
+        "eu-west-1",
+        "ap-southeast-2"
+      ],
+      "title": "Region",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "2.0.0",
+      "default": "2.0.0",
+      "title": "Schemaversion",
+      "type": "string"
+    },
+    "signal": {
+      "enum": [
+        "cart_abandoned",
+        "lead_submitted",
+        "audience_requested",
+        "product_interest",
+        "service_risk",
+        "case_resolved"
+      ],
+      "title": "Signal",
+      "type": "string"
+    },
+    "source": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+      "title": "Source",
+      "type": "string"
+    },
+    "tenantId": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+      "title": "Tenantid",
+      "type": "string"
+    }
+  },
+  "required": [
+    "eventId",
+    "tenantId",
+    "region",
+    "aggregateId",
+    "customerRef",
+    "signal",
+    "occurredAt",
+    "correlationId",
+    "source"
+  ],
+  "title": "SignalEvent",
+  "type": "object"
+}

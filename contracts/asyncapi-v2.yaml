@@ -1,0 +1,19 @@
+asyncapi: 3.0.0
+info:
+  title: Regional enterprise growth orchestration
+  version: 2.0.0
+defaultContentType: application/json
+channels:
+  signals:
+    address: growth.signal.v2
+    messages:
+      signal:
+        name: RegionalSignalV2
+        contentType: application/json
+        payload:
+          schemaFormat: application/schema+json;version=draft-2020-12
+          schema: {$ref: './enterprise-event.schema.json'}
+operations:
+  consumeRegionalSignal:
+    action: receive
+    channel: {$ref: '#/channels/signals'}

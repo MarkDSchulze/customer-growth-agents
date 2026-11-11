@@ -1,0 +1,289 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "commerce.cart_abandoned.v1"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "properties": {
+              "cartId": {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+                "title": "Cartid",
+                "type": "string"
+              },
+              "cartValue": {
+                "anyOf": [
+                  {
+                    "minimum": 0.0,
+                    "type": "number"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ],
+                "title": "Cartvalue"
+              },
+              "currency": {
+                "pattern": "^[A-Z]{3}$",
+                "title": "Currency",
+                "type": "string"
+              },
+              "customerRef": {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+                "title": "Customerref",
+                "type": "string"
+              },
+              "itemIds": {
+                "items": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+                  "type": "string"
+                },
+                "maxItems": 100,
+                "minItems": 1,
+                "title": "Itemids",
+                "type": "array"
+              }
+            },
+            "required": [
+              "cartId",
+              "customerRef",
+              "currency",
+              "cartValue",
+              "itemIds"
+            ],
+            "title": "CartAbandoned",
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "commerce.order_placed.v1"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "properties": {
+              "amount": {
+                "anyOf": [
+                  {
+                    "minimum": 0.0,
+                    "type": "number"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ],
+                "title": "Amount"
+              },
+              "cartId": {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+                "title": "Cartid",
+                "type": "string"
+              },
+              "currency": {
+                "pattern": "^[A-Z]{3}$",
+                "title": "Currency",
+                "type": "string"
+              },
+              "customerRef": {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+                "title": "Customerref",
+                "type": "string"
+              },
+              "orderId": {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+                "title": "Orderid",
+                "type": "string"
+              }
+            },
+            "required": [
+              "cartId",
+              "customerRef",
+              "orderId",
+              "currency",
+              "amount"
+            ],
+            "title": "OrderPlaced",
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "service.case_escalated.v1"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "properties": {
+              "caseId": {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+                "title": "Caseid",
+                "type": "string"
+              },
+              "customerRef": {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+                "title": "Customerref",
+                "type": "string"
+              },
+              "severity": {
+                "enum": [
+                  "high",
+                  "critical"
+                ],
+                "title": "Severity",
+                "type": "string"
+              }
+            },
+            "required": [
+              "customerRef",
+              "caseId",
+              "severity"
+            ],
+            "title": "CaseEscalated",
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "growth.action_executed.v1"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "properties": {
+              "actionId": {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+                "title": "Actionid",
+                "type": "string"
+              },
+              "customerRef": {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+                "title": "Customerref",
+                "type": "string"
+              },
+              "externalRef": {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+                "title": "Externalref",
+                "type": "string"
+              },
+              "workflowId": {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+                "title": "Workflowid",
+                "type": "string"
+              }
+            },
+            "required": [
+              "actionId",
+              "workflowId",
+              "customerRef",
+              "externalRef"
+            ],
+            "title": "ActionExecuted",
+            "type": "object"
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "aggregateId": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+      "title": "Aggregateid",
+      "type": "string"
+    },
+    "correlationId": {
+      "format": "uuid",
+      "title": "Correlationid",
+      "type": "string"
+    },
+    "data": {
+      "additionalProperties": true,
+      "title": "Data",
+      "type": "object"
+    },
+    "eventId": {
+      "format": "uuid",
+      "title": "Eventid",
+      "type": "string"
+    },
+    "eventType": {
+      "enum": [
+        "commerce.cart_abandoned.v1",
+        "commerce.order_placed.v1",
+        "service.case_escalated.v1",
+        "growth.action_executed.v1"
+      ],
+      "title": "Eventtype",
+      "type": "string"
+    },
+    "occurredAt": {
+      "format": "date-time",
+      "title": "Occurredat",
+      "type": "string"
+    },
+    "region": {
+      "const": "us-east-1",
+      "default": "us-east-1",
+      "title": "Region",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schemaversion",
+      "type": "string"
+    },
+    "source": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+      "title": "Source",
+      "type": "string"
+    },
+    "tenantId": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,95}$",
+      "title": "Tenantid",
+      "type": "string"
+    }
+  },
+  "required": [
+    "eventId",
+    "eventType",
+    "tenantId",
+    "aggregateId",
+    "occurredAt",
+    "correlationId",
+    "source",
+    "data"
+  ],
+  "title": "Event",
+  "type": "object"
+}
