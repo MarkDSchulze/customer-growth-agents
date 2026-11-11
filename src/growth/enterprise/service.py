@@ -702,13 +702,22 @@ class EnterpriseService:
             return self._view(session, w)
 
     def list_workflows(
-        self, identity: Principal, cursor: str | None = None, limit: int = 50
+        self,
+        identity: Principal,
+        cursor: str | None = None,
+        limit: int = 50,
+        state: str | None = None,
+        customer: str | None = None,
     ) -> dict[str, Any]:
         with unit(self.db, identity.tenant) as session:
             self.config(session, identity.tenant, identity.region)
             query = select(Workflow).where(
                 Workflow.tenant == identity.tenant, Workflow.purpose.in_(identity.purposes)
             )
+            if state:
+                query = query.where(Workflow.state == state)
+            if customer:
+                query = query.where(Workflow.customer == customer)
             if cursor:
                 query = query.where(Workflow.id > cursor)
             rows = list(session.scalars(query.order_by(Workflow.id).limit(limit + 1)))

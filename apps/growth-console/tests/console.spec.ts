@@ -59,6 +59,8 @@ test('all five domain workflows, bound approval and connector registry',async({p
   await page.getByRole('button',{name:'Enterprise workflows',exact:true}).click();
   await page.getByRole('button',{name:'Run all domains',exact:true}).click();
   await expect(page.getByRole('button',{name:'Inspect cust-enterprise-002'})).toBeVisible();
+  await page.getByLabel('Workflow status',{exact:true}).selectOption('APPROVAL_PENDING');
+  await expect(page.getByRole('button',{name:'Inspect cust-enterprise-001'})).toHaveCount(0);
   await page.getByRole('button',{name:'Inspect cust-enterprise-002'}).click();
   const detail=page.getByRole('region',{name:'Enterprise workflow details'});
   await expect(detail.getByRole('button',{name:'Approve bound plan & recheck'})).toBeVisible();

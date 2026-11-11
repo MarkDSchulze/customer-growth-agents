@@ -2153,6 +2153,8 @@ export interface operations {
             query?: {
                 cursor?: string | null;
                 limit?: number;
+                state?: string | null;
+                customer?: string | null;
             };
             header?: never;
             path?: never;

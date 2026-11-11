@@ -140,10 +140,20 @@ def routes(
 
     @router.get("/workflows")
     def workflows(
-        identity: Identity, cursor: str | None = None, limit: int = Query(default=50, ge=1, le=200)
+        identity: Identity,
+        cursor: str | None = None,
+        limit: int = Query(default=50, ge=1, le=200),
+        state: str | None = Query(
+            default=None,
+            pattern=(
+                "^(RECEIVED|PLANNED|EXECUTING|APPROVAL_PENDING|COMPLETED|SUPPRESSED|"
+                "HOLDOUT|CANCELLED|EXPIRED|FAILED_REVIEW|DRY_RUN)$"
+            ),
+        ),
+        customer: str | None = Query(default=None, min_length=1, max_length=96),
     ) -> dict[str, Any]:
         require(identity, "viewer", "operator", "admin")
-        return service.list_workflows(identity, cursor, limit)
+        return service.list_workflows(identity, cursor, limit, state, customer)
 
     @router.get("/workflows/{wid}")
     def workflow(wid: str, identity: Identity) -> dict[str, Any]:
@@ -240,23 +250,54 @@ def routes(
             counts = dict(
                 session.execute(
                     select(Workflow.state, func.count())
-                    .where(Workflow.tenant == identity.tenant)
+                    .where(
+                        Workflow.tenant == identity.tenant, Workflow.purpose.in_(identity.purposes)
+                    )
                     .group_by(Workflow.state)
                 ).all()
             )
             denied = dict(
                 session.execute(
                     select(Action.reason, func.count())
-                    .where(Action.tenant == identity.tenant, Action.state == "SUPPRESSED")
+                    .join(
+                        Workflow,
+                        (Workflow.tenant == Action.tenant) & (Workflow.id == Action.workflow),
+                    )
+                    .where(
+                        Action.tenant == identity.tenant,
+                        Workflow.purpose.in_(identity.purposes),
+                        Action.state == "SUPPRESSED",
+                    )
                     .group_by(Action.reason)
                 ).all()
             )
             pending = session.scalar(
                 select(func.count())
                 .select_from(Outbox)
-                .where(Outbox.tenant == identity.tenant, Outbox.published.is_(False))
+                .join(
+                    Workflow, (Workflow.tenant == Outbox.tenant) & (Workflow.id == Outbox.workflow)
+                )
+                .where(
+                    Outbox.tenant == identity.tenant,
+                    Workflow.purpose.in_(identity.purposes),
+                    Outbox.published.is_(False),
+                )
+            )
+            action_counts = dict(
+                session.execute(
+                    select(Action.state, func.count())
+                    .join(
+                        Workflow,
+                        (Workflow.tenant == Action.tenant) & (Workflow.id == Action.workflow),
+                    )
+                    .where(
+                        Action.tenant == identity.tenant, Workflow.purpose.in_(identity.purposes)
+                    )
+                    .group_by(Action.state)
+                ).all()
             )
             return {
+                "actions": action_counts,
                 "workflows": counts,
                 "policyDenials": denied,
                 "outboxPending": pending,

@@ -1477,6 +1477,25 @@ paths:
           minimum: 1
           title: Limit
           type: integer
+      - in: query
+        name: state
+        required: false
+        schema:
+          anyOf:
+          - pattern: ^(RECEIVED|PLANNED|EXECUTING|APPROVAL_PENDING|COMPLETED|SUPPRESSED|HOLDOUT|CANCELLED|EXPIRED|FAILED_REVIEW|DRY_RUN)$
+            type: string
+          - type: 'null'
+          title: State
+      - in: query
+        name: customer
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 96
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Customer
       responses:
         '200':
           content:

@@ -47,6 +47,13 @@ def test_api_full_portfolio_approval_and_export(enterprise):
         rest = client.get("/v2/workflows?limit=200&cursor=" + page["nextCursor"]).json()["items"]
         assert len(rest) == 5
         all_workflows = client.get("/v2/workflows").json()["items"]
+        metrics = client.get("/v2/operations").json()
+        assert sum(metrics["workflows"].values()) == 7
+        assert metrics["actions"]["ACCEPTED"] > 0
+        filtered = client.get("/v2/workflows", params={"state": "APPROVAL_PENDING"}).json()
+        assert len(filtered["items"]) == 1
+        assert client.get("/v2/workflows?state=UNKNOWN").status_code == 422
+        assert client.get("/v2/workflows?customer=absent").json()["items"] == []
         audience = next(w for w in all_workflows if w["signal"] == "audience_requested")
         wid = audience["workflowId"]
         assert client.post(f"/v2/workflows/{wid}/execute").status_code == 400
@@ -66,6 +73,13 @@ def test_api_full_portfolio_approval_and_export(enterprise):
         denied = {"Authorization": "Bearer " + token(purposes=["service_recovery"])}
         assert client.get(f"/v2/workflows/{wid}", headers=denied).status_code == 403
         assert client.post(f"/v2/workflows/{wid}/cancel", headers=denied).status_code == 403
+        scoped = client.get("/v2/workflows", headers=denied).json()["items"]
+        scoped_metrics = client.get("/v2/operations", headers=denied).json()
+        assert sum(scoped_metrics["workflows"].values()) == len(scoped) == 2
+        assert scoped_metrics["outboxPending"] == 2
+        assert sum(scoped_metrics["actions"].values()) == sum(len(w["actions"]) for w in scoped)
+        exact = client.get("/v2/workflows", params={"customer": audience["customerRef"]}).json()
+        assert [w["workflowId"] for w in exact["items"]] == [wid]
         export = client.get("/v2/audit/export")
         assert (
             export.status_code == 200 and "application/x-ndjson" in export.headers["content-type"]
